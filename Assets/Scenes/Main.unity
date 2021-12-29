@@ -200,7 +200,7 @@ GameObject:
   - component: {fileID: 374248801}
   - component: {fileID: 374248800}
   m_Layer: 0
-  m_Name: LetterManager
+  m_Name: GameManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -219,10 +219,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PrefabLetter: {fileID: 2639102714956877649, guid: 640b6be918d98744b8b881120c820e31, type: 3}
-  Rows: 9
-  WordLength: 8
-  GridSpacing: 1.1
+  MaxRows: 9
   RowOffset: 4
+  GridSpacing: 1.1
 --- !u!4 &374248801
 Transform:
   m_ObjectHideFlags: 0
