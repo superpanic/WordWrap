@@ -108,7 +108,7 @@ GameObject:
   - component: {fileID: 8149375805923876187}
   m_Layer: 0
   m_Name: letter plate
-  m_TagString: Untagged
+  m_TagString: Letter
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -220,6 +220,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ad02fccad057a24da29a65e210f824a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Col: 0
+  LetterIndex: 0
 --- !u!1 &2639102715556725963
 GameObject:
   m_ObjectHideFlags: 0

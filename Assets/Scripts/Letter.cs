@@ -7,18 +7,12 @@ namespace WordWrap {
 	public class Letter : MonoBehaviour {
 
 		private Text UIText;
-		public int Row;
-		public int CharNum;
+		public int Col;
+		public int LetterIndex;
 
 		void Start() {
 			Transform transform = this.transform.Find("letter");
 			UIText = transform.GetComponent<Text>();
-		}
-
-		private void OnMouseDown() {
-			Debug.Log(UIText.text);
-			Debug.Log(Row);
-			Debug.Log(CharNum);
 		}
 
 		public void SetLetter(char c) {

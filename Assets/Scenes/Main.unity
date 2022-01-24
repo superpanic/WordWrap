@@ -220,8 +220,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PrefabLetter: {fileID: 2639102714956877649, guid: 640b6be918d98744b8b881120c820e31, type: 3}
   MaxRows: 9
-  RowOffset: 4
+  MaxCols: 11
   GridSpacing: 1.1
+  GridColOffset: 5
 --- !u!4 &374248801
 Transform:
   m_ObjectHideFlags: 0
@@ -402,8 +403,9 @@ MonoBehaviour:
   colors:
   - {r: 1, g: 0.18228072, b: 0, a: 1}
   - {r: 0, g: 0.4050064, b: 1, a: 1}
-  - {r: 0.13456747, g: 0.14118207, b: 0.1509434, a: 1}
-  - {r: 0.83107865, g: 0.8495016, b: 0.8679245, a: 1}
+  - {r: 0, g: 0.58155894, b: 1, a: 1}
+  - {r: 0.13333334, g: 0.14117648, b: 0.14901961, a: 1}
+  - {r: 0.8313726, g: 0.85098046, b: 0.86666673, a: 1}
 --- !u!4 &1693653126
 Transform:
   m_ObjectHideFlags: 0
