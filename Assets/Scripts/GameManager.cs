@@ -42,6 +42,7 @@ namespace WordWrap {
 			}
 
 			Touch touch = Input.touches[0];
+			
 			Vector3 pos = touch.position;
 			if (touch.phase == TouchPhase.Began) {
 				Debug.Log("touch began");

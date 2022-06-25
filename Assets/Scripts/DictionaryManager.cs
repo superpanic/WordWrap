@@ -8,8 +8,8 @@ namespace WordWrap {
 	class DictionaryManager {
 
 		private WordNode RootNode;
-		//private string Path = "Assets/Dictionaries/common_words_eu_com.txt";
-		private string Path = "Assets/Dictionaries/sorted_words.txt";
+		public string Path = "Assets/Dictionaries/common_words_eu_com.txt";
+		//public string Path = "Assets/Dictionaries/sorted_words.txt";
 		private System.Random Rnd;
 
 		public void Setup() {
