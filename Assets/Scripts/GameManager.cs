@@ -23,27 +23,46 @@ namespace WordWrap {
 
 		// touch drag properties
 		private float touchDist;
-		private bool touchDragging;
+		private bool touchDragging = false;
 		private Vector3 touchOffset;
 		private Transform touchObject;
 
 		private bool platformIsMobile;
 
+		void Start() {
+			platformIsMobile = (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer);
+
+			Dictionary = new DictionaryManager();
+			Dictionary.Setup();
+
+			if (!PrefabLetter) Debug.Log("A prefab letter has not been assigned!");
+			
+			LetterObjects = new GameObject[MaxCols][];
+			RowOffsets = new int[MaxRows];
+			ColOffsets = new int[MaxCols];
+			FillGrid();
+		}
+
 		void Update() {
-			Vector3 v3;
+			InputHandler();
+			
+		}
 
-			bool touchDown;
- 			if (platformIsMobile) touchDown = (Input.touchCount == 1);
-			else touchDown = (Input.GetMouseButton(0));
-
-			if (!touchDown) {
-				touchDragging = false;
-				return;
+		private void InputHandler() {
+			if(Input.touchCount > 0) {
+				TouchHandler();
+			} else {
+				MouseHander();
 			}
+		}
+
+		private void TouchHandler() {
+	    		Vector3 v3;
 
 			Touch touch = Input.touches[0];
 			
 			Vector3 pos = touch.position;
+
 			if (touch.phase == TouchPhase.Began) {
 				Debug.Log("touch began");
 				Ray ray = Camera.main.ScreenPointToRay(pos);
@@ -70,20 +89,38 @@ namespace WordWrap {
 			if(touchDragging && (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)) {
 				touchDragging = false;
 			}
-			
+
 		}
 
-		void Start() {
-			platformIsMobile = (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer);
+		private void MouseHander() {
+			Vector3 v3;
+			if (Input.GetMouseButton(0) && touchDragging == false) {
+				Debug.Log("touch began (mouse)");
+				Vector3 pos = Input.mousePosition;
+				Ray ray = Camera.main.ScreenPointToRay(pos);
+				RaycastHit hit;
 
-			Dictionary = new DictionaryManager();
-			Dictionary.Setup();
+				if(Physics.Raycast(ray, out hit)) {
+					if(hit.collider.tag == "Letter") {
+						touchObject = hit.transform;
+						touchDist = hit.transform.position.z - Camera.main.transform.position.z;
+						v3 = new Vector3(pos.x, pos.y, touchDist);
+						v3 = Camera.main.ScreenToWorldPoint(v3);
+						touchOffset = touchObject.position - v3;
+						touchDragging = true;
+					}
+				}
+			} else if(!Input.GetMouseButton(0) && touchDragging == true) {
+				Debug.Log("touch ended (mouse)");
+				touchDragging = false;
+				return;
+			}
 
-			if (!PrefabLetter) Debug.Log("A prefab letter has not been assigned!");
-			LetterObjects = new GameObject[MaxCols][];
-			RowOffsets = new int[MaxRows];
-			ColOffsets = new int[MaxCols];
-			FillGrid();
+			if(touchDragging) {
+				v3 = new Vector3(Input.mousePosition.x, Input.mousePosition.y, touchDist);
+				v3 = Camera.main.ScreenToWorldPoint(v3);
+				touchObject.position = v3 + touchOffset;
+			}
 		}
 
 		private void FillGrid() {
