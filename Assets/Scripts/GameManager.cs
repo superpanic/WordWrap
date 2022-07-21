@@ -13,8 +13,8 @@ namespace WordWrap {
 
 		public byte MaxRows = 9;
 		public byte MaxCols = 9;
-		private int[] RowOffsets;
-		private int[] ColOffsets;
+		//private int[] RowOffsets;
+		//private int[] ColOffsets;
 
 		public float GridSpacing = 1.1f;
 		public byte GridColOffset = 4;
@@ -22,30 +22,25 @@ namespace WordWrap {
 		private GameObject[][] LetterObjects;
 
 		// touch drag properties
-		private float touchDist;
-		private bool touchDragging = false;
-		private Vector3 touchOffset;
-		private Transform touchObject;
-
-		private bool platformIsMobile;
+		private float TouchDist;
+		private bool TouchDragging = false;
+		private Vector3 TouchOffset;
+		private Transform TouchObject;
 
 		void Start() {
-			platformIsMobile = (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer);
-
 			Dictionary = new DictionaryManager();
 			Dictionary.Setup();
 
 			if (!PrefabLetter) Debug.Log("A prefab letter has not been assigned!");
 			
 			LetterObjects = new GameObject[MaxCols][];
-			RowOffsets = new int[MaxRows];
-			ColOffsets = new int[MaxCols];
+			//RowOffsets = new int[MaxRows];
+			//ColOffsets = new int[MaxCols];
 			FillGrid();
 		}
 
 		void Update() {
 			InputHandler();
-			
 		}
 
 		private void InputHandler() {
@@ -64,62 +59,63 @@ namespace WordWrap {
 			Vector3 pos = touch.position;
 
 			if (touch.phase == TouchPhase.Began) {
-				Debug.Log("touch began");
+				Debug.Log("Touch began");
 				Ray ray = Camera.main.ScreenPointToRay(pos);
 				RaycastHit hit;
 
 				if (Physics.Raycast(ray, out hit)) {
 					if (hit.collider.tag == "Letter") {
-						touchObject = hit.transform;
-						touchDist = hit.transform.position.z - Camera.main.transform.position.z;
-						v3 = new Vector3(pos.x, pos.y, touchDist);
+						TouchObject = hit.transform;
+						TouchDist = hit.transform.position.z - Camera.main.transform.position.z;
+						v3 = new Vector3(pos.x, pos.y, TouchDist);
 						v3 = Camera.main.ScreenToWorldPoint(v3);
-						touchOffset = touchObject.position - v3;
-						touchDragging = true;
+						TouchOffset = TouchObject.position - v3;
+						TouchDragging = true;
 					}
 				}
 			}
 
-			if(touchDragging && touch.phase == TouchPhase.Moved) {
-				v3 = new Vector3(Input.mousePosition.x, Input.mousePosition.y, touchDist);
+			if(TouchDragging && touch.phase == TouchPhase.Moved) {
+				v3 = new Vector3(Input.mousePosition.x, Input.mousePosition.y, TouchDist);
 				v3 = Camera.main.ScreenToWorldPoint(v3);
-				touchObject.position = v3 + touchOffset;
+				TouchObject.position = v3 + TouchOffset;
 			}
 
-			if(touchDragging && (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)) {
-				touchDragging = false;
+			if(TouchDragging && (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)) {
+				Debug.Log("Touch ended");
+				TouchDragging = false;
 			}
 
 		}
 
 		private void MouseHander() {
 			Vector3 v3;
-			if (Input.GetMouseButton(0) && touchDragging == false) {
-				Debug.Log("touch began (mouse)");
+			if (Input.GetMouseButton(0) && TouchDragging == false) {
+				Debug.Log("Touch began (mouse)");
 				Vector3 pos = Input.mousePosition;
 				Ray ray = Camera.main.ScreenPointToRay(pos);
 				RaycastHit hit;
 
 				if(Physics.Raycast(ray, out hit)) {
 					if(hit.collider.tag == "Letter") {
-						touchObject = hit.transform;
-						touchDist = hit.transform.position.z - Camera.main.transform.position.z;
-						v3 = new Vector3(pos.x, pos.y, touchDist);
+						TouchObject = hit.transform;
+						TouchDist = hit.transform.position.z - Camera.main.transform.position.z;
+						v3 = new Vector3(pos.x, pos.y, TouchDist);
 						v3 = Camera.main.ScreenToWorldPoint(v3);
-						touchOffset = touchObject.position - v3;
-						touchDragging = true;
+						TouchOffset = TouchObject.position - v3;
+						TouchDragging = true;
 					}
 				}
-			} else if(!Input.GetMouseButton(0) && touchDragging == true) {
-				Debug.Log("touch ended (mouse)");
-				touchDragging = false;
+			} else if(!Input.GetMouseButton(0) && TouchDragging == true) {
+				Debug.Log("Touch ended (mouse)");
+				TouchDragging = false;
 				return;
 			}
 
-			if(touchDragging) {
-				v3 = new Vector3(Input.mousePosition.x, Input.mousePosition.y, touchDist);
+			if(TouchDragging) {
+				v3 = new Vector3(Input.mousePosition.x, Input.mousePosition.y, TouchDist);
 				v3 = Camera.main.ScreenToWorldPoint(v3);
-				touchObject.position = v3 + touchOffset;
+				TouchObject.position = v3 + TouchOffset;
 			}
 		}
 

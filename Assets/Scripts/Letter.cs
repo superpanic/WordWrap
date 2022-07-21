@@ -9,6 +9,7 @@ namespace WordWrap {
 		private Text UIText;
 		public int Col;
 		public int LetterIndex;
+		private WordManager Word;
 
 		void Start() {
 			Transform transform = this.transform.Find("letter");
@@ -20,6 +21,10 @@ namespace WordWrap {
 		}
 		public char GetLetter() {
 			return UIText.text[0];
+		}
+
+		public void SetWordManager(WordManager w) {
+			Word = w;
 		}
 	}
 }
