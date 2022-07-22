@@ -13,13 +13,13 @@ namespace WordWrap {
 
 		public byte MaxRows = 9;
 		public byte MaxCols = 9;
-		//private int[] RowOffsets;
-		//private int[] ColOffsets;
 
 		public float GridSpacing = 1.1f;
 		public byte GridColOffset = 4;
 
 		private GameObject[][] LetterObjects;
+		private List<List<GameObject>> WordObjects = new List<List<GameObject>>();
+		private List<string> WordStrings = new List<string>();
 
 		// touch drag properties
 		private float TouchDist;
@@ -34,9 +34,7 @@ namespace WordWrap {
 			if (!PrefabLetter) Debug.Log("A prefab letter has not been assigned!");
 			
 			LetterObjects = new GameObject[MaxCols][];
-			//RowOffsets = new int[MaxRows];
-			//ColOffsets = new int[MaxCols];
-			FillGrid();
+			AddWordsToScene();
 		}
 
 		void Update() {
@@ -76,9 +74,10 @@ namespace WordWrap {
 			}
 
 			if(TouchDragging && touch.phase == TouchPhase.Moved) {
-				v3 = new Vector3(Input.mousePosition.x, Input.mousePosition.y, TouchDist);
+				v3 = new Vector3(pos.x, pos.y, TouchDist);
 				v3 = Camera.main.ScreenToWorldPoint(v3);
-				TouchObject.position = v3 + TouchOffset;
+				MoveWordTo(v3+TouchOffset);
+//				TouchObject.position = v3 + TouchOffset;
 			}
 
 			if(TouchDragging && (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)) {
@@ -106,7 +105,7 @@ namespace WordWrap {
 						TouchDragging = true;
 					}
 				}
-			} else if(!Input.GetMouseButton(0) && TouchDragging == true) {
+			} else if(!Input.GetMouseButton(0) && TouchDragging) {
 				Debug.Log("Touch ended (mouse)");
 				TouchDragging = false;
 				return;
@@ -115,29 +114,51 @@ namespace WordWrap {
 			if(TouchDragging) {
 				v3 = new Vector3(Input.mousePosition.x, Input.mousePosition.y, TouchDist);
 				v3 = Camera.main.ScreenToWorldPoint(v3);
-				TouchObject.position = v3 + TouchOffset;
+				MoveWordTo(v3+TouchOffset);
+//				TouchObject.position = v3 + TouchOffset;
 			}
 		}
 
-		private void FillGrid() {
-			for (int col = 0; col < MaxCols; col++) {
-				string word = Dictionary.GetRandomWord();
-				Debug.Log(word);
-				LetterObjects[col] = new GameObject[word.Length];
-				for (int letterIndex = 0; letterIndex < word.Length; letterIndex++) {
-					int offset = word.Length / 2;
-					char letter = char.ToUpper(word[letterIndex]);
-					AddLetterObjectToScene(letter, col, letterIndex, offset);
+		private void MoveWordTo(Vector3 p) {
+			if(TouchDragging) {
+				Letter LetterProperties = TouchObject.GetComponent<Letter>();
+				List<GameObject> activeWord = LetterProperties.GetMyWord();
+				float firstLetterOffset = (LetterProperties.LetterIndex+1) * GridSpacing;
+				p.y += firstLetterOffset;
+
+				for(int i=0; i<activeWord.Count; i++) {
+					p.y -= GridSpacing;
+					activeWord[i].transform.position = p;
 				}
 			}
 		}
 
-		private void AddLetterObjectToScene(char letter, int col, int letterIndex, int offset) {
+		private void AddWordsToScene() {
+			for (int col = 0; col < MaxCols; col++) {
+				string word = Dictionary.GetRandomWord();
+				Debug.Log($"Random word {col+1}: {word}");
+
+				List<GameObject> MyWord = new List<GameObject>();
+
+				for (int letterIndex = 0; letterIndex < word.Length; letterIndex++) {
+					int offset = word.Length / 2;
+					char letter = char.ToUpper(word[letterIndex]);
+					GameObject letterObject = AddLetterToScene(letter, col, letterIndex, offset);
+					letterObject.GetComponent<Letter>().SetMyWord(MyWord);
+					MyWord.Add(letterObject);
+				}
+
+				WordObjects.Add(MyWord);
+				WordStrings.Add(word);
+			}
+		}
+
+		private GameObject AddLetterToScene(char letter, int col, int letterIndex, int offset) {
 			Vector3 pos = new Vector3(GridSpacing * (col - GridColOffset), -GridSpacing * (letterIndex - offset), 0);
 			GameObject letterObject = Instantiate(PrefabLetter, pos, Quaternion.identity) as GameObject;
 			InitLetterObject(col, letterIndex, letterObject);
 			SetLetter(letter, letterObject);
-			LetterObjects[col][letterIndex] = letterObject;
+			return letterObject;
 		}
 
 		private static void InitLetterObject(int col, int letterIndex, GameObject letterObject) {

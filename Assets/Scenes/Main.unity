@@ -191,6 +191,11 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &319625330 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2639102714956877649, guid: 640b6be918d98744b8b881120c820e31, type: 3}
+  m_PrefabInstance: {fileID: 2639102714156024126}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &374248799
 GameObject:
   m_ObjectHideFlags: 0
@@ -375,6 +380,51 @@ MonoBehaviour:
   colorIndex: 0
   intensity: 1
   recursive: 0
+--- !u!1 &1074940793
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1074940795}
+  - component: {fileID: 1074940794}
+  m_Layer: 0
+  m_Name: WordManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1074940794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1074940793}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87ced34bf10dd4bfe88d41963d657889, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PrefabLetter: {fileID: 319625330}
+--- !u!4 &1074940795
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1074940793}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1693653124
 GameObject:
   m_ObjectHideFlags: 0

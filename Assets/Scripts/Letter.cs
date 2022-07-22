@@ -9,7 +9,7 @@ namespace WordWrap {
 		private Text UIText;
 		public int Col;
 		public int LetterIndex;
-		private WordManager Word;
+		private List<GameObject> MyWord;
 
 		void Start() {
 			Transform transform = this.transform.Find("letter");
@@ -23,8 +23,13 @@ namespace WordWrap {
 			return UIText.text[0];
 		}
 
-		public void SetWordManager(WordManager w) {
-			Word = w;
+		public void SetMyWord(List<GameObject> w) {
+			MyWord = w;
 		}
+
+		public List<GameObject> GetMyWord() {
+			return MyWord;
+		}
+
 	}
 }
