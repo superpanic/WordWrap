@@ -76,7 +76,7 @@ namespace WordWrap {
 			if(TouchDragging && touch.phase == TouchPhase.Moved) {
 				v3 = new Vector3(pos.x, pos.y, TouchDist);
 				v3 = Camera.main.ScreenToWorldPoint(v3);
-				MoveWordTo(v3+TouchOffset);
+				MoveWordToPos(v3+TouchOffset);
 			}
 
 			if(TouchDragging && (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)) {
@@ -84,6 +84,20 @@ namespace WordWrap {
 				TouchDragging = false;
 			}
 
+		}
+
+		private void MouseClickHandler() {
+			if( Input.GetMouseButtonUp(0) ) {
+				Vector3 mouseClickPos = Input.mousePosition;
+				Ray ray = Camera.main.ScreenPointToRay(mouseClickPos);
+				RaycastHit mouseClickHit;
+				if( Physics.Raycast(ray, out mouseClickHit) ) {
+					if(mouseClickHit.collider.tag == "Letter") {
+						Transform letter = mouseClickHit.transform;
+						MoveWordToCenterLetter(letter);
+					}
+				} 
+			}
 		}
 
 		private void MouseHander() {
@@ -113,21 +127,7 @@ namespace WordWrap {
 			if(TouchDragging) {
 				v3 = new Vector3(Input.mousePosition.x, Input.mousePosition.y, TouchDist);
 				v3 = Camera.main.ScreenToWorldPoint(v3);
-				MoveWordTo(v3+TouchOffset);
-			}
-		}
-
-		private void MouseClickHandler() {
-			if( Input.GetMouseButtonUp(0) ) {
-				Vector3 mouseClickPos = Input.mousePosition;
-				Ray ray = Camera.main.ScreenPointToRay(mouseClickPos);
-				RaycastHit mouseClickHit;
-				if( Physics.Raycast(ray, out mouseClickHit) ) {
-					if(mouseClickHit.collider.tag == "Letter") {
-						Transform letter = mouseClickHit.transform;
-						MoveWordToCenterLetter(letter);
-					}
-				} 
+				MoveWordToPos(v3+TouchOffset);
 			}
 		}
 
@@ -144,7 +144,7 @@ namespace WordWrap {
 			}
 		}
 
-		private void MoveWordTo(Vector3 p) {
+		private void MoveWordToPos(Vector3 p) {
 			if(TouchDragging) {
 				Letter letterProperties = TouchObject.GetComponent<Letter>();
 				List<GameObject> activeWord = letterProperties.GetMyWord();
