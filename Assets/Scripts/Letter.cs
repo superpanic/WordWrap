@@ -23,7 +23,10 @@ namespace WordWrap {
 				if(transform.position == Destination) {
 					IsMoving = false;
 				} else {
-					// TODO: move incrementally towards Destination
+					float l = Mathf.Lerp(transform.position.y, Destination.y, 0.1f);
+					Vector3 p = transform.position;
+					p.y = l;
+					transform.position = p;
 				}
 			}
 		}

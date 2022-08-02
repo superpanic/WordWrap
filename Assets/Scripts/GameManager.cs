@@ -140,7 +140,8 @@ namespace WordWrap {
 			int offset = letterIndex;
 			for (int i = 0; i < wordLength; i++) {
 				Vector3 pos = new Vector3(currentXPos, -GridSpacing * (i - offset), 0);
-				myWord[i].transform.position = pos;
+				Letter currentLetterProperties = myWord[i].transform.GetComponent<Letter>();
+				currentLetterProperties.SetDestination(pos);
 			}
 		}
 
