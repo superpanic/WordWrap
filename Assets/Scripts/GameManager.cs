@@ -17,14 +17,14 @@ namespace WordWrap {
 		public float GridSpacing = 1.1f;
 		public byte GridColOffset = 4;
 
-		private GameObject[][] LetterObjects;
+		private GameObject[][]         LetterObjects;
 		private List<List<GameObject>> WordObjects = new List<List<GameObject>>();
-		private List<string> WordStrings = new List<string>();
+		private List<string>           WordStrings = new List<string>();
 
 		// touch drag properties
-		private float TouchDist;
-		private bool TouchDragging = false;
-		private Vector3 TouchOffset;
+		private float     TouchDist;
+		private bool      TouchDragging = false;
+		private Vector3   TouchOffset;
 		private Transform TouchObject;
 
 		void Start() {
@@ -45,7 +45,7 @@ namespace WordWrap {
 			if(Input.touchCount > 0) {
 				TouchHandler();
 			} else {
-				MouseHander();
+				MouseClickHandler();
 			}
 		}
 
@@ -77,7 +77,6 @@ namespace WordWrap {
 				v3 = new Vector3(pos.x, pos.y, TouchDist);
 				v3 = Camera.main.ScreenToWorldPoint(v3);
 				MoveWordTo(v3+TouchOffset);
-//				TouchObject.position = v3 + TouchOffset;
 			}
 
 			if(TouchDragging && (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)) {
@@ -115,17 +114,42 @@ namespace WordWrap {
 				v3 = new Vector3(Input.mousePosition.x, Input.mousePosition.y, TouchDist);
 				v3 = Camera.main.ScreenToWorldPoint(v3);
 				MoveWordTo(v3+TouchOffset);
-//				TouchObject.position = v3 + TouchOffset;
+			}
+		}
+
+		private void MouseClickHandler() {
+			if( Input.GetMouseButtonUp(0) ) {
+				Vector3 mouseClickPos = Input.mousePosition;
+				Ray ray = Camera.main.ScreenPointToRay(mouseClickPos);
+				RaycastHit mouseClickHit;
+				if( Physics.Raycast(ray, out mouseClickHit) ) {
+					if(mouseClickHit.collider.tag == "Letter") {
+						Transform letter = mouseClickHit.transform;
+						MoveWordToCenterLetter(letter);
+					}
+				} 
+			}
+		}
+
+		private void MoveWordToCenterLetter(Transform letter) {
+			Letter letterProperties = letter.GetComponent<Letter>();
+			List<GameObject> myWord = letterProperties.GetMyWord();
+			int wordLength = myWord.Count;
+			int letterIndex = letterProperties.LetterIndex;
+			float currentXPos = letter.transform.position.x;
+			int offset = letterIndex;
+			for (int i = 0; i < wordLength; i++) {
+				Vector3 pos = new Vector3(currentXPos, -GridSpacing * (i - offset), 0);
+				myWord[i].transform.position = pos;
 			}
 		}
 
 		private void MoveWordTo(Vector3 p) {
 			if(TouchDragging) {
-				Letter LetterProperties = TouchObject.GetComponent<Letter>();
-				List<GameObject> activeWord = LetterProperties.GetMyWord();
-				float firstLetterOffset = (LetterProperties.LetterIndex+1) * GridSpacing;
+				Letter letterProperties = TouchObject.GetComponent<Letter>();
+				List<GameObject> activeWord = letterProperties.GetMyWord();
+				float firstLetterOffset = (letterProperties.LetterIndex+1) * GridSpacing;
 				p.y += firstLetterOffset;
-
 				for(int i=0; i<activeWord.Count; i++) {
 					p.y -= GridSpacing;
 					activeWord[i].transform.position = p;
@@ -166,6 +190,7 @@ namespace WordWrap {
 			LetterProperties.Col = col;
 			LetterProperties.LetterIndex = letterIndex;
 		}
+
 		private static void SetLetter(char c, GameObject letterObject) {
 			Transform transform = letterObject.transform.Find("letter");
 			Text textObject = transform.GetComponent<Text>();
