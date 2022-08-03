@@ -17,7 +17,6 @@ namespace WordWrap {
 		public float GridSpacing = 1.1f;
 		public byte GridColOffset = 4;
 
-		private GameObject[][]         LetterObjects;
 		private List<List<GameObject>> WordObjects = new List<List<GameObject>>();
 		private List<string>           WordStrings = new List<string>();
 
@@ -33,7 +32,6 @@ namespace WordWrap {
 
 			if (!PrefabLetter) Debug.Log("A prefab letter has not been assigned!");
 			
-			LetterObjects = new GameObject[MaxCols][];
 			AddWordsToScene();
 		}
 
