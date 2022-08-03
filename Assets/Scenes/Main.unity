@@ -397,6 +397,10 @@ PrefabInstance:
       propertyPath: palette
       value: 
       objectReference: {fileID: 1693653125}
+    - target: {fileID: 2639102714659259459, guid: 640b6be918d98744b8b881120c820e31, type: 3}
+      propertyPath: colorIndex
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 2639102714956877645, guid: 640b6be918d98744b8b881120c820e31, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

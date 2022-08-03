@@ -12,6 +12,7 @@ namespace WordWrap {
 		private List<GameObject> MyWord;
 		private Vector3 Destination;
 		private bool IsMoving = false;
+		private bool IsInFocus = false;
 
 		void Start() {
 			Transform transform = this.transform.Find("letter");
@@ -36,6 +37,25 @@ namespace WordWrap {
 				Destination = d;
 				IsMoving = true;
 			}
+		}
+
+		public void SetInFocus() {
+			if(!IsInFocus) {
+				for(int i=0; i<MyWord.Count; i++) {
+					MyWord[i].GetComponent<Letter>().RemoveInFocus();
+				}
+				IsInFocus = true;
+				Transform square = this.transform.Find("square");
+				Colorize colorizer = square.GetComponent<Colorize>();
+				colorizer.colorIndex = 2;
+			}
+		}
+
+		public void RemoveInFocus() {
+			IsInFocus = false;
+			Transform square = this.transform.Find("square");
+			Colorize colorizer = square.GetComponent<Colorize>();
+			colorizer.colorIndex = 1;
 		}
 
 		public void SetLetter(char c) {

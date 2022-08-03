@@ -142,6 +142,7 @@ namespace WordWrap {
 				Vector3 pos = new Vector3(currentXPos, -GridSpacing * (i - offset), 0);
 				Letter currentLetterProperties = myWord[i].transform.GetComponent<Letter>();
 				currentLetterProperties.SetDestination(pos);
+				currentLetterProperties.SetInFocus();
 			}
 		}
 
@@ -164,12 +165,14 @@ namespace WordWrap {
 				Debug.Log($"Random word {col+1}: {word}");
 
 				List<GameObject> MyWord = new List<GameObject>();
+				int offset = word.Length / 2;
 
-				for (int letterIndex = 0; letterIndex < word.Length; letterIndex++) {
-					int offset = word.Length / 2;
+				for (int letterIndex = 0; letterIndex < word.Length; letterIndex++) {	
 					char letter = char.ToUpper(word[letterIndex]);
 					GameObject letterObject = AddLetterToScene(letter, col, letterIndex, offset);
-					letterObject.GetComponent<Letter>().SetMyWord(MyWord);
+					Letter letterProperties = letterObject.GetComponent<Letter>();
+					letterProperties.SetMyWord(MyWord);
+					if(letterIndex == word.Length/2) letterProperties.SetInFocus();
 					MyWord.Add(letterObject);
 				}
 
