@@ -142,8 +142,8 @@ namespace WordWrap {
 				Vector3 pos = new Vector3(currentXPos, -GridSpacing * (i - offset), 0);
 				Letter currentLetterProperties = myWord[i].transform.GetComponent<Letter>();
 				currentLetterProperties.SetDestination(pos);
-				currentLetterProperties.SetInFocus();
 			}
+			letterProperties.SetInFocus();
 		}
 
 		private void MoveWordToPos(Vector3 p) {

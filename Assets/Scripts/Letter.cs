@@ -45,17 +45,13 @@ namespace WordWrap {
 					MyWord[i].GetComponent<Letter>().RemoveInFocus();
 				}
 				IsInFocus = true;
-				Transform square = this.transform.Find("square");
-				Colorize colorizer = square.GetComponent<Colorize>();
-				colorizer.colorIndex = 2;
+				SetBaseColor(2);
 			}
 		}
 
 		public void RemoveInFocus() {
 			IsInFocus = false;
-			Transform square = this.transform.Find("square");
-			Colorize colorizer = square.GetComponent<Colorize>();
-			colorizer.colorIndex = 1;
+			SetBaseColor(1);
 		}
 
 		public void SetLetter(char c) {
@@ -73,5 +69,12 @@ namespace WordWrap {
 			return MyWord;
 		}
 
+		public void SetBaseColor(int col) {
+			Transform square = this.transform.Find("square");
+			Colorize colorizer = square.GetComponent<Colorize>();
+			colorizer.colorIndex = col;
+		}
+
 	}
+
 }
