@@ -89,7 +89,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4db8f70b24e359f47ab652df2d0b3cc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  palette: {fileID: 0}
+  palette: {fileID: 6927204851079917844, guid: 1e077e4c2516947daa83c77e2b5b4e0e, type: 3}
   colorIndex: 1
   intensity: 1
   recursive: 0
@@ -284,7 +284,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.83107865, g: 0.8495016, b: 0.8679245, a: 1}
+  m_Color: {r: 0.8313726, g: 0.85098046, b: 0.86666673, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -317,7 +317,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4db8f70b24e359f47ab652df2d0b3cc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  palette: {fileID: 0}
-  colorIndex: 3
+  palette: {fileID: 6927204851079917844, guid: 1e077e4c2516947daa83c77e2b5b4e0e, type: 3}
+  colorIndex: 4
   intensity: 1
   recursive: 0
