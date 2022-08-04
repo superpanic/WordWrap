@@ -19,6 +19,7 @@ namespace WordWrap {
 
 		private List<List<GameObject>> WordObjects = new List<List<GameObject>>();
 		private List<string>           WordStrings = new List<string>();
+		private List<GameObject>	SelectedWord = new List<GameObject>();
 
 		// touch drag properties
 		private float     TouchDist;
@@ -142,6 +143,7 @@ namespace WordWrap {
 				currentLetterProperties.SetDestination(pos);
 			}
 			letterProperties.SetInFocus();
+			GetSelectedWord(letter);
 		}
 
 		private void MoveWordToPos(Vector3 p) {
@@ -162,19 +164,19 @@ namespace WordWrap {
 				string word = Dictionary.GetRandomWord();
 				Debug.Log($"Random word {col+1}: {word}");
 
-				List<GameObject> MyWord = new List<GameObject>();
+				List<GameObject> myWord = new List<GameObject>();
 				int offset = word.Length / 2;
 
 				for (int letterIndex = 0; letterIndex < word.Length; letterIndex++) {	
 					char letter = char.ToUpper(word[letterIndex]);
 					GameObject letterObject = AddLetterToScene(letter, col, letterIndex, offset);
 					Letter letterProperties = letterObject.GetComponent<Letter>();
-					letterProperties.SetMyWord(MyWord);
+					letterProperties.SetMyWord(myWord);
 					if(letterIndex == word.Length/2) letterProperties.SetInFocus();
-					MyWord.Add(letterObject);
+					myWord.Add(letterObject);
 				}
 
-				WordObjects.Add(MyWord);
+				WordObjects.Add(myWord);
 				WordStrings.Add(word);
 			}
 		}
@@ -188,15 +190,36 @@ namespace WordWrap {
 		}
 
 		private static void InitLetterObject(int col, int letterIndex, GameObject letterObject) {
-			Letter LetterProperties = letterObject.GetComponent<Letter>();
-			LetterProperties.Col = col;
-			LetterProperties.LetterIndex = letterIndex;
+			Letter letterProperties = letterObject.GetComponent<Letter>();
+			letterProperties.Col = col;
+			letterProperties.LetterIndex = letterIndex;
 		}
 
 		private static void SetLetter(char c, GameObject letterObject) {
 			Transform transform = letterObject.transform.Find("letter");
 			Text textObject = transform.GetComponent<Text>();
 			textObject.text = "" + c;
+		}
+
+		private void GetSelectedWord(Transform letterObject) {
+			Letter letterProperties = letterObject.GetComponent<Letter>();
+			List<GameObject> word = letterProperties.GetMyWord();
+			int wordIndex = WordObjects.IndexOf(word);
+			string selectedWord = "";
+			for(int i=0; i<=wordIndex; i++) {
+				List<GameObject> wordObject = WordObjects[i];
+				Letter selectedLetter = null;
+				for(int j=0;j<wordObject.Count;j++) {
+					Letter lp = wordObject[j].GetComponent<Letter>();
+					if(lp.GetIsInFocus()) {
+						selectedLetter = lp;
+						break;
+					}
+				}
+				Debug.Assert(selectedLetter != null, $"Word {WordStrings[i]} does not have a selected letter!");
+				selectedWord += selectedLetter.GetLetter().ToString();
+			}
+			Debug.Log($"Word is {selectedWord}");
 		}
 
 	}

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,6 +10,7 @@ namespace WordWrap {
 		private Text UIText;
 		public int Col;
 		public int LetterIndex;
+		private float MotionSpeed = 0.1f;
 		private List<GameObject> MyWord;
 		private Vector3 Destination;
 		private bool IsMoving = false;
@@ -24,7 +26,7 @@ namespace WordWrap {
 				if(transform.position == Destination) {
 					IsMoving = false;
 				} else {
-					float l = Mathf.Lerp(transform.position.y, Destination.y, 0.1f);
+					float l = Mathf.Lerp(transform.position.y, Destination.y, MotionSpeed);
 					Vector3 p = transform.position;
 					p.y = l;
 					transform.position = p;
@@ -52,6 +54,10 @@ namespace WordWrap {
 		public void RemoveInFocus() {
 			IsInFocus = false;
 			SetBaseColor(1);
+		}
+
+		public bool GetIsInFocus() {
+			return IsInFocus;
 		}
 
 		public void SetLetter(char c) {
