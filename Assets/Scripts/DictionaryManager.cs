@@ -8,9 +8,13 @@ namespace WordWrap {
 	class DictionaryManager {
 
 		private WordNode RootNode;
-		public string Path = "Assets/Dictionaries/common_words_eu_com.txt";
+		private string Path = "Assets/Dictionaries/common_words_eu_com.txt";
 		//public string Path = "Assets/Dictionaries/sorted_words.txt";
 		private System.Random Rnd;
+
+		public void SetPath(string p) {
+			Path = p;
+		}
 
 		public void Setup() {
 			Rnd = new System.Random();
@@ -47,6 +51,7 @@ namespace WordWrap {
 		}
 
 		public int SearchString(string s) {
+			s = s.ToLower();
 			if (RootNode == null) return 0;
 			return RootNode.ReadWord(s); // 0 == not found
 		}

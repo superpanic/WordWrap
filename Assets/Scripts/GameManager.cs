@@ -9,7 +9,8 @@ namespace WordWrap {
 
 		public GameObject PrefabLetter;
 
-		private DictionaryManager Dictionary;
+		private DictionaryManager DictionaryFull;
+		private DictionaryManager DictionaryCommonWords;
 
 		public byte MaxRows = 9;
 		public byte MaxCols = 9;
@@ -28,8 +29,13 @@ namespace WordWrap {
 		private Transform TouchObject;
 
 		void Start() {
-			Dictionary = new DictionaryManager();
-			Dictionary.Setup();
+			DictionaryFull = new DictionaryManager();
+			DictionaryFull.SetPath("Assets/Dictionaries/sorted_words.txt");
+			DictionaryFull.Setup();
+
+			DictionaryCommonWords = new DictionaryManager();
+			DictionaryCommonWords.SetPath("Assets/Dictionaries/common_words_eu_com.txt");
+			DictionaryCommonWords.Setup();
 
 			if (!PrefabLetter) Debug.Log("A prefab letter has not been assigned!");
 			
@@ -161,7 +167,7 @@ namespace WordWrap {
 
 		private void AddWordsToScene() {
 			for (int col = 0; col < MaxCols; col++) {
-				string word = Dictionary.GetRandomWord();
+				string word = DictionaryCommonWords.GetRandomWord();
 				Debug.Log($"Random word {col+1}: {word}");
 
 				List<GameObject> myWord = new List<GameObject>();
@@ -204,8 +210,9 @@ namespace WordWrap {
 		private void GetSelectedWord(Transform letterObject) {
 			Letter letterProperties = letterObject.GetComponent<Letter>();
 			List<GameObject> word = letterProperties.GetMyWord();
-			int wordIndex = WordObjects.IndexOf(word);
+			int wordIndex = WordObjects.IndexOf(word); // ! Potential problem if the same word is present more than once?
 			string selectedWord = "";
+			List<Letter> selectedWordLetterList = new List<Letter>();
 			for(int i=0; i<=wordIndex; i++) {
 				List<GameObject> wordObject = WordObjects[i];
 				Letter selectedLetter = null;
@@ -213,13 +220,20 @@ namespace WordWrap {
 					Letter lp = wordObject[j].GetComponent<Letter>();
 					if(lp.GetIsInFocus()) {
 						selectedLetter = lp;
+						selectedWordLetterList.Add(lp);
 						break;
 					}
 				}
 				Debug.Assert(selectedLetter != null, $"Word {WordStrings[i]} does not have a selected letter!");
 				selectedWord += selectedLetter.GetLetter().ToString();
 			}
-			Debug.Log($"Word is {selectedWord}");
+			
+			if( DictionaryFull.SearchString(selectedWord) > 0 ) {
+				for(int i=0; i < selectedWordLetterList.Count; i++) {
+					selectedWordLetterList[i].SetBaseColor((int)GameColors.Green);
+				}
+				Debug.Log($"Word {selectedWord} is in dictionary!");
+			}
 		}
 
 	}

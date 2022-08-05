@@ -5,8 +5,17 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace WordWrap {
-	public class Letter : MonoBehaviour {
 
+	public enum GameColors {
+		White,
+		Black,
+		Red,
+		Blue,
+		BlueLight,
+		Green
+	}
+
+	public class Letter : MonoBehaviour {
 		private Text UIText;
 		public int Col;
 		public int LetterIndex;
@@ -47,13 +56,13 @@ namespace WordWrap {
 					MyWord[i].GetComponent<Letter>().RemoveInFocus();
 				}
 				IsInFocus = true;
-				SetBaseColor(2);
+				SetBaseColor((int)GameColors.BlueLight);
 			}
 		}
 
 		public void RemoveInFocus() {
 			IsInFocus = false;
-			SetBaseColor(1);
+			SetBaseColor((int)GameColors.Blue);
 		}
 
 		public bool GetIsInFocus() {
