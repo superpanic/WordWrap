@@ -20,7 +20,8 @@ namespace WordWrap {
 
 		private List<List<GameObject>> WordObjects = new List<List<GameObject>>();
 		private List<string>           WordStrings = new List<string>();
-		private List<GameObject>	SelectedWord = new List<GameObject>();
+		private List<GameObject>       SelectedWordObjects = new List<GameObject>();
+		private string                 SelectedWordString;
 
 		// touch drag properties
 		private float     TouchDist;
@@ -136,35 +137,6 @@ namespace WordWrap {
 			}
 		}
 
-		private void MoveWordToCenterLetter(Transform letter) {
-			Letter letterProperties = letter.GetComponent<Letter>();
-			List<GameObject> myWord = letterProperties.GetMyWord();
-			int wordLength = myWord.Count;
-			int letterIndex = letterProperties.LetterIndex;
-			float currentXPos = letter.transform.position.x;
-			int offset = letterIndex;
-			for (int i = 0; i < wordLength; i++) {
-				Vector3 pos = new Vector3(currentXPos, -GridSpacing * (i - offset), 0);
-				Letter currentLetterProperties = myWord[i].transform.GetComponent<Letter>();
-				currentLetterProperties.SetDestination(pos);
-			}
-			letterProperties.SetInFocus();
-			GetSelectedWord(letter);
-		}
-
-		private void MoveWordToPos(Vector3 p) {
-			if(TouchDragging) {
-				Letter letterProperties = TouchObject.GetComponent<Letter>();
-				List<GameObject> activeWord = letterProperties.GetMyWord();
-				float firstLetterOffset = (letterProperties.LetterIndex+1) * GridSpacing;
-				p.y += firstLetterOffset;
-				for(int i=0; i<activeWord.Count; i++) {
-					p.y -= GridSpacing;
-					activeWord[i].transform.position = p;
-				}
-			}
-		}
-
 		private void AddWordsToScene() {
 			for (int col = 0; col < MaxCols; col++) {
 				string word = DictionaryCommonWords.GetRandomWord();
@@ -178,12 +150,54 @@ namespace WordWrap {
 					GameObject letterObject = AddLetterToScene(letter, col, letterIndex, offset);
 					Letter letterProperties = letterObject.GetComponent<Letter>();
 					letterProperties.SetMyWord(myWord);
-					if(letterIndex == word.Length/2) letterProperties.SetInFocus();
+					if(letterIndex == word.Length/2) {
+						letterProperties.SetInFocus();
+						letterProperties.SetBaseColor((int)GameColors.BlockFocus);
+					}
 					myWord.Add(letterObject);
 				}
 
 				WordObjects.Add(myWord);
 				WordStrings.Add(word);
+			}
+		}
+
+
+		private void MoveWordToCenterLetter(Transform letter) {
+			Letter letterProperties = letter.GetComponent<Letter>();
+			List<GameObject> myWord = letterProperties.GetMyWord();
+			int wordLength = myWord.Count;
+			int letterIndex = letterProperties.LetterIndex;
+			float currentXPos = letter.transform.position.x;
+			int offset = letterIndex;
+			float sizeDelta = 1.0f/MaxRows;
+			for (int i = 0; i < wordLength; i++) {
+				Letter currentLetterProperties = myWord[i].transform.GetComponent<Letter>();
+				//ScaleLetterBlockFromCenter(offset, sizeDelta, i, currentLetterProperties);
+				Vector3 pos = new Vector3(currentXPos, -GridSpacing * (i - offset), 0);
+				currentLetterProperties.SetDestination(pos);
+				currentLetterProperties.SetBaseColor((int)GameColors.Block);
+			}
+			letterProperties.SetInFocus();
+			letterProperties.SetBaseColor((int)GameColors.BlockFocus);
+			GetSelectedWord(letter);
+		}
+
+		private static void ScaleLetterBlockFromCenter(int offset, float sizeDelta, int index, Letter currentLetterProperties) {
+			float letterIndexFromCenter = Mathf.Abs(offset - index);
+			currentLetterProperties.SetScale(1.0f - (letterIndexFromCenter * sizeDelta));
+		}
+
+		private void MoveWordToPos(Vector3 p) {
+			if(TouchDragging) {
+				Letter letterProperties = TouchObject.GetComponent<Letter>();
+				List<GameObject> activeWord = letterProperties.GetMyWord();
+				float firstLetterOffset = (letterProperties.LetterIndex+1) * GridSpacing;
+				p.y += firstLetterOffset;
+				for(int i=0; i<activeWord.Count; i++) {
+					p.y -= GridSpacing;
+					activeWord[i].transform.position = p;
+				}
 			}
 		}
 
@@ -208,33 +222,42 @@ namespace WordWrap {
 		}
 
 		private void GetSelectedWord(Transform letterObject) {
+			ClearFoundWordColor();
+			SelectedWordObjects.Clear();
 			Letter letterProperties = letterObject.GetComponent<Letter>();
 			List<GameObject> word = letterProperties.GetMyWord();
 			int wordIndex = WordObjects.IndexOf(word); // ! Potential problem if the same word is present more than once?
-			string selectedWord = "";
+			SelectedWordString = "";
 			List<Letter> selectedWordLetterList = new List<Letter>();
-			for(int i=0; i<=wordIndex; i++) {
+			for (int i = 0; i <= wordIndex; i++) {
 				List<GameObject> wordObject = WordObjects[i];
 				Letter selectedLetter = null;
-				for(int j=0;j<wordObject.Count;j++) {
+				for (int j = 0; j < wordObject.Count; j++) {
 					Letter lp = wordObject[j].GetComponent<Letter>();
-					if(lp.GetIsInFocus()) {
+					if (lp.GetIsInFocus()) {
 						selectedLetter = lp;
 						selectedWordLetterList.Add(lp);
+						SelectedWordObjects.Add(wordObject[j]);
 						break;
 					}
 				}
 				Debug.Assert(selectedLetter != null, $"Word {WordStrings[i]} does not have a selected letter!");
-				selectedWord += selectedLetter.GetLetter().ToString();
+				SelectedWordString += selectedLetter.GetLetter().ToString();
+				selectedLetter.SetBaseColor((int)GameColors.BlockFocus);
 			}
-			
-			if( DictionaryFull.SearchString(selectedWord) > 0 ) {
-				for(int i=0; i < selectedWordLetterList.Count; i++) {
-					selectedWordLetterList[i].SetBaseColor((int)GameColors.Green);
+
+			if (DictionaryFull.SearchString(SelectedWordString) > 0) {
+				for (int i = 0; i < selectedWordLetterList.Count; i++) {
+					selectedWordLetterList[i].SetBaseColor((int)GameColors.BlockWord);
 				}
-				Debug.Log($"Word {selectedWord} is in dictionary!");
+				Debug.Log($"Word {SelectedWordString} is in dictionary!");
 			}
 		}
 
+		private void ClearFoundWordColor() {
+			if (SelectedWordObjects.Count > 0)
+				for (int i = 0; i < SelectedWordObjects.Count; i++)
+					SelectedWordObjects[i].GetComponent<Letter>().SetBaseColor((int)GameColors.BlockFocus);
+		}
 	}
 }

@@ -7,12 +7,12 @@ using UnityEngine.UI;
 namespace WordWrap {
 
 	public enum GameColors {
-		White,
+		Letter,
 		Black,
-		Red,
-		Blue,
-		BlueLight,
-		Green
+		Background,
+		Block,
+		BlockFocus,
+		BlockWord
 	}
 
 	public class Letter : MonoBehaviour {
@@ -20,6 +20,8 @@ namespace WordWrap {
 		public int Col;
 		public int LetterIndex;
 		private float MotionSpeed = 0.1f;
+		private Vector3 ScaleDefault;
+		private float ScaleMultiplier = 1.0f;
 		private List<GameObject> MyWord;
 		private Vector3 Destination;
 		private bool IsMoving = false;
@@ -28,6 +30,7 @@ namespace WordWrap {
 		void Start() {
 			Transform transform = this.transform.Find("letter");
 			UIText = transform.GetComponent<Text>();
+			ScaleDefault = this.transform.localScale;
 		}
 
 		void Update() {
@@ -43,6 +46,14 @@ namespace WordWrap {
 			}
 		}
 
+		public void SetScale(float scaleMultiplier) {
+			ScaleMultiplier = scaleMultiplier;
+			Vector3 sc = this.transform.localScale;
+			sc.x = ScaleDefault.x * ScaleMultiplier;
+			sc.y = ScaleDefault.y * ScaleMultiplier;
+			this.transform.localScale = sc;
+		}
+
 		public void SetDestination(Vector3 d) {
 			if(d != transform.position) {
 				Destination = d;
@@ -56,13 +67,13 @@ namespace WordWrap {
 					MyWord[i].GetComponent<Letter>().RemoveInFocus();
 				}
 				IsInFocus = true;
-				SetBaseColor((int)GameColors.BlueLight);
+				//SetBaseColor((int)GameColors.BlueLight);
 			}
 		}
 
 		public void RemoveInFocus() {
 			IsInFocus = false;
-			SetBaseColor((int)GameColors.Blue);
+			//SetBaseColor((int)GameColors.Blue);
 		}
 
 		public bool GetIsInFocus() {
