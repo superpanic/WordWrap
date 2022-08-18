@@ -11,14 +11,27 @@ namespace WordWrap {
 		private string Path = "Assets/Dictionaries/common_words_eu_com.txt";
 		//public string Path = "Assets/Dictionaries/sorted_words.txt";
 		private System.Random Rnd;
+		private int LowLimit = 2;
+		private int HighLimit = 7;
 
 		public void SetPath(string p) {
 			Path = p;
 		}
 
+		public void Setup(int low, int high) {
+			SetLimits(low,high);
+			Rnd = new System.Random();
+			CreateWordTree(Path, lowLimit:LowLimit, highLimit:HighLimit);
+		}
+
 		public void Setup() {
 			Rnd = new System.Random();
-			CreateWordTree(Path, lowLimit:2, highLimit:7);
+			CreateWordTree(Path, lowLimit:LowLimit, highLimit:HighLimit);
+		}
+
+		public void SetLimits(int low, int high) {
+			LowLimit = low;
+			HighLimit = high;
 		}
 
 		public void CreateWordTree(string sortedWordFileName, int lowLimit, int highLimit) {

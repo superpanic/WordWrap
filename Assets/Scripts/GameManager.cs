@@ -12,7 +12,7 @@ namespace WordWrap {
 		private DictionaryManager DictionaryFull;
 		private DictionaryManager DictionaryCommonWords;
 
-		public byte MaxRows = 9;
+		public byte MaxRows = 7;
 		public byte MaxCols = 9;
 
 		public float GridSpacing = 1.1f;
@@ -32,13 +32,13 @@ namespace WordWrap {
 		void Start() {
 			DictionaryFull = new DictionaryManager();
 			DictionaryFull.SetPath("Assets/Dictionaries/sorted_words.txt");
-			DictionaryFull.Setup();
+			DictionaryFull.Setup(low:3,high:9);
 
 			DictionaryCommonWords = new DictionaryManager();
 			DictionaryCommonWords.SetPath("Assets/Dictionaries/common_words_eu_com.txt");
-			DictionaryCommonWords.Setup();
+			DictionaryCommonWords.Setup(low:3,high:7);
 
-			if (!PrefabLetter) Debug.Log("A prefab letter has not been assigned!");
+			Debug.Assert(PrefabLetter, "A prefab letter has not been assigned!");
 			
 			AddWordsToScene();
 		}
@@ -222,8 +222,7 @@ namespace WordWrap {
 		}
 
 		private void GetSelectedWord(Transform letterObject) {
-			ClearFoundWordColor();
-			SelectedWordObjects.Clear();
+			ClearFoundWord();
 			Letter letterProperties = letterObject.GetComponent<Letter>();
 			List<GameObject> word = letterProperties.GetMyWord();
 			int wordIndex = WordObjects.IndexOf(word); // ! Potential problem if the same word is present more than once?
@@ -254,10 +253,11 @@ namespace WordWrap {
 			}
 		}
 
-		private void ClearFoundWordColor() {
+		private void ClearFoundWord() {
 			if (SelectedWordObjects.Count > 0)
 				for (int i = 0; i < SelectedWordObjects.Count; i++)
 					SelectedWordObjects[i].GetComponent<Letter>().SetBaseColor((int)GameColors.BlockFocus);
+			SelectedWordObjects.Clear();
 		}
 	}
 }
