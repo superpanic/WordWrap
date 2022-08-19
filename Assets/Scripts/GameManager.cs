@@ -162,9 +162,11 @@ namespace WordWrap {
 			}
 		}
 
-
 		private void MoveWordToCenterLetter(Transform letter) {
+			ClearFoundWord();
+
 			Letter letterProperties = letter.GetComponent<Letter>();
+
 			List<GameObject> myWord = letterProperties.GetMyWord();
 			int wordLength = myWord.Count;
 			int letterIndex = letterProperties.LetterIndex;
@@ -178,9 +180,12 @@ namespace WordWrap {
 				currentLetterProperties.SetDestination(pos);
 				currentLetterProperties.SetBaseColor((int)GameColors.Block);
 			}
-			letterProperties.SetInFocus();
-			letterProperties.SetBaseColor((int)GameColors.BlockFocus);
-			GetSelectedWord(letter);
+			if(letterProperties.GetIsInFocus()) {
+				GetSelectedWord(letter);
+			} else {
+				letterProperties.SetInFocus();
+				letterProperties.SetBaseColor((int)GameColors.BlockFocus);
+			}
 		}
 
 		private static void ScaleLetterBlockFromCenter(int offset, float sizeDelta, int index, Letter currentLetterProperties) {
@@ -222,7 +227,6 @@ namespace WordWrap {
 		}
 
 		private void GetSelectedWord(Transform letterObject) {
-			ClearFoundWord();
 			Letter letterProperties = letterObject.GetComponent<Letter>();
 			List<GameObject> word = letterProperties.GetMyWord();
 			int wordIndex = WordObjects.IndexOf(word); // ! Potential problem if the same word is present more than once?
