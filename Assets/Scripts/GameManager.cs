@@ -44,52 +44,7 @@ namespace WordWrap {
 		}
 
 		void Update() {
-			InputHandler();
-		}
-
-		private void InputHandler() {
-			if(Input.touchCount > 0) {
-				TouchHandler();
-			} else {
-				MouseClickHandler();
-			}
-		}
-
-		private void TouchHandler() {
-	    		Vector3 v3;
-
-			Touch touch = Input.touches[0];
-			
-			Vector3 pos = touch.position;
-
-			if (touch.phase == TouchPhase.Began) {
-				Debug.Log("Touch began");
-				Ray ray = Camera.main.ScreenPointToRay(pos);
-				RaycastHit hit;
-
-				if (Physics.Raycast(ray, out hit)) {
-					if (hit.collider.tag == "Letter") {
-						TouchObject = hit.transform;
-						TouchDist = hit.transform.position.z - Camera.main.transform.position.z;
-						v3 = new Vector3(pos.x, pos.y, TouchDist);
-						v3 = Camera.main.ScreenToWorldPoint(v3);
-						TouchOffset = TouchObject.position - v3;
-						TouchDragging = true;
-					}
-				}
-			}
-
-			if(TouchDragging && touch.phase == TouchPhase.Moved) {
-				v3 = new Vector3(pos.x, pos.y, TouchDist);
-				v3 = Camera.main.ScreenToWorldPoint(v3);
-				MoveWordToPos(v3+TouchOffset);
-			}
-
-			if(TouchDragging && (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)) {
-				Debug.Log("Touch ended");
-				TouchDragging = false;
-			}
-
+			MouseClickHandler();
 		}
 
 		private void MouseClickHandler() {
@@ -103,37 +58,6 @@ namespace WordWrap {
 						MoveWordToCenterLetter(letter);
 					}
 				} 
-			}
-		}
-
-		private void MouseHander() {
-			Vector3 v3;
-			if (Input.GetMouseButton(0) && TouchDragging == false) {
-				Debug.Log("Touch began (mouse)");
-				Vector3 pos = Input.mousePosition;
-				Ray ray = Camera.main.ScreenPointToRay(pos);
-				RaycastHit hit;
-
-				if(Physics.Raycast(ray, out hit)) {
-					if(hit.collider.tag == "Letter") {
-						TouchObject = hit.transform;
-						TouchDist = hit.transform.position.z - Camera.main.transform.position.z;
-						v3 = new Vector3(pos.x, pos.y, TouchDist);
-						v3 = Camera.main.ScreenToWorldPoint(v3);
-						TouchOffset = TouchObject.position - v3;
-						TouchDragging = true;
-					}
-				}
-			} else if(!Input.GetMouseButton(0) && TouchDragging) {
-				Debug.Log("Touch ended (mouse)");
-				TouchDragging = false;
-				return;
-			}
-
-			if(TouchDragging) {
-				v3 = new Vector3(Input.mousePosition.x, Input.mousePosition.y, TouchDist);
-				v3 = Camera.main.ScreenToWorldPoint(v3);
-				MoveWordToPos(v3+TouchOffset);
 			}
 		}
 
@@ -164,7 +88,6 @@ namespace WordWrap {
 
 		private void MoveWordToCenterLetter(Transform letter) {
 			ClearFoundWord();
-
 			Letter letterProperties = letter.GetComponent<Letter>();
 
 			List<GameObject> myWord = letterProperties.GetMyWord();
@@ -172,25 +95,19 @@ namespace WordWrap {
 			int letterIndex = letterProperties.LetterIndex;
 			float currentXPos = letter.transform.position.x;
 			int offset = letterIndex;
-			float sizeDelta = 1.0f/MaxRows;
 			for (int i = 0; i < wordLength; i++) {
 				Letter currentLetterProperties = myWord[i].transform.GetComponent<Letter>();
-				//ScaleLetterBlockFromCenter(offset, sizeDelta, i, currentLetterProperties);
 				Vector3 pos = new Vector3(currentXPos, -GridSpacing * (i - offset), 0);
 				currentLetterProperties.SetDestination(pos);
 				currentLetterProperties.SetBaseColor((int)GameColors.Block);
 			}
+
 			if(letterProperties.GetIsInFocus()) {
 				GetSelectedWord(letter);
 			} else {
 				letterProperties.SetInFocus();
 				letterProperties.SetBaseColor((int)GameColors.BlockFocus);
 			}
-		}
-
-		private static void ScaleLetterBlockFromCenter(int offset, float sizeDelta, int index, Letter currentLetterProperties) {
-			float letterIndexFromCenter = Mathf.Abs(offset - index);
-			currentLetterProperties.SetScale(1.0f - (letterIndexFromCenter * sizeDelta));
 		}
 
 		private void MoveWordToPos(Vector3 p) {
