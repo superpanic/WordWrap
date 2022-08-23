@@ -14,6 +14,14 @@ namespace WordWrap {
 		private int LowLimit = 2;
 		private int HighLimit = 7;
 
+		public DictionaryManager(string path, int high, int low) {
+			Path = path;
+			LowLimit = low;
+			HighLimit = high;
+			Rnd = new System.Random();
+			CreateWordTree(Path, lowLimit:LowLimit, highLimit:HighLimit);
+		}
+
 		public void SetPath(string p) {
 			Path = p;
 		}

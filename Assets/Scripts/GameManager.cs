@@ -30,13 +30,13 @@ namespace WordWrap {
 		private Transform TouchObject;
 
 		void Start() {
-			DictionaryFull = new DictionaryManager();
-			DictionaryFull.SetPath("Assets/Dictionaries/sorted_words.txt");
-			DictionaryFull.Setup(low:3,high:9);
+			DictionaryFull = new DictionaryManager(path:"Assets/Dictionaries/sorted_words.txt", low:3, high:9);
+//			DictionaryFull.SetPath("Assets/Dictionaries/sorted_words.txt");
+//			DictionaryFull.Setup(low:3,high:9);
 
-			DictionaryCommonWords = new DictionaryManager();
-			DictionaryCommonWords.SetPath("Assets/Dictionaries/common_words_eu_com.txt");
-			DictionaryCommonWords.Setup(low:3,high:7);
+			DictionaryCommonWords = new DictionaryManager(path:"Assets/Dictionaries/common_words_eu_com.txt", low:3, high:7);
+//			DictionaryCommonWords.SetPath("Assets/Dictionaries/common_words_eu_com.txt");
+//			DictionaryCommonWords.Setup(low:3,high:7);
 
 			Debug.Assert(PrefabLetter, "A prefab letter has not been assigned!");
 			
