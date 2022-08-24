@@ -8,47 +8,22 @@ namespace WordWrap {
 	class DictionaryManager {
 
 		private WordNode RootNode;
-		private string Path = "Assets/Dictionaries/common_words_eu_com.txt";
-		//public string Path = "Assets/Dictionaries/sorted_words.txt";
 		private System.Random Rnd;
 		private int LowLimit = 2;
 		private int HighLimit = 7;
 
 		public DictionaryManager(string path, int high, int low) {
-			Path = path;
 			LowLimit = low;
 			HighLimit = high;
-			Rnd = new System.Random();
-			CreateWordTree(Path, lowLimit:LowLimit, highLimit:HighLimit);
+			CreateWordTree(path, lowLimit:LowLimit, highLimit:HighLimit);
 		}
 
-		public void SetPath(string p) {
-			Path = p;
-		}
-
-		public void Setup(int low, int high) {
-			SetLimits(low,high);
-			Rnd = new System.Random();
-			CreateWordTree(Path, lowLimit:LowLimit, highLimit:HighLimit);
-		}
-
-		public void Setup() {
-			Rnd = new System.Random();
-			CreateWordTree(Path, lowLimit:LowLimit, highLimit:HighLimit);
-		}
-
-		public void SetLimits(int low, int high) {
-			LowLimit = low;
-			HighLimit = high;
-		}
-
-		public void CreateWordTree(string sortedWordFileName, int lowLimit, int highLimit) {
-
+		public void CreateWordTree(string sortedWordFilePath, int lowLimit, int highLimit) {
 			RootNode = new WordNode(isRoot:true);
 			
 			long milliseconds;
-			if (File.Exists(sortedWordFileName)) { /// make sure "copy to output directory" is set for file ///
-				using (StreamReader file = new StreamReader(sortedWordFileName)) {
+			if (File.Exists(sortedWordFilePath)) { /// make sure "copy to output directory" is set for file ///
+				using (StreamReader file = new StreamReader(sortedWordFilePath)) {
 					int counter = 0;
 					string ln;
 
@@ -67,7 +42,7 @@ namespace WordWrap {
 					Debug.Log($"Read {counter} words from text file in {milliseconds} milliseconds.");
 				}
 			} else {
-				throw new Exception($"word list: {sortedWordFileName}, is missing");
+				throw new Exception($"word list: {sortedWordFilePath}, is missing");
 			}
 		}
 
@@ -91,8 +66,10 @@ namespace WordWrap {
 		}
 
 		public string GetRandomWord() {
-			string word = "";
+			Debug.Assert(RootNode!=null, "Failed to get random word: Node tree not created!");
+			if(Rnd==null) Rnd = new System.Random();
 
+			string word = "";
 			WordNode currentNode = RootNode;
 
 			// do this until we find a node that is end of a word and does not have any child nodes			
