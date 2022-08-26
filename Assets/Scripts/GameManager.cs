@@ -23,23 +23,10 @@ namespace WordWrap {
 		private List<GameObject>       SelectedWordObjects = new List<GameObject>();
 		private string                 SelectedWordString;
 
-		// touch drag properties
-		private float     TouchDist;
-		private bool      TouchDragging = false;
-		private Vector3   TouchOffset;
-		private Transform TouchObject;
-
 		void Start() {
 			DictionaryFull = new DictionaryManager(path:"Assets/Dictionaries/sorted_words.txt", low:3, high:9);
-//			DictionaryFull.SetPath("Assets/Dictionaries/sorted_words.txt");
-//			DictionaryFull.Setup(low:3,high:9);
-
 			DictionaryCommonWords = new DictionaryManager(path:"Assets/Dictionaries/common_words_eu_com.txt", low:3, high:7);
-//			DictionaryCommonWords.SetPath("Assets/Dictionaries/common_words_eu_com.txt");
-//			DictionaryCommonWords.Setup(low:3,high:7);
-
 			Debug.Assert(PrefabLetter, "A prefab letter has not been assigned!");
-			
 			AddWordsToScene();
 		}
 
@@ -107,19 +94,6 @@ namespace WordWrap {
 			} else {
 				letterProperties.SetInFocus();
 				letterProperties.SetBaseColor((int)GameColors.BlockFocus);
-			}
-		}
-
-		private void MoveWordToPos(Vector3 p) {
-			if(TouchDragging) {
-				Letter letterProperties = TouchObject.GetComponent<Letter>();
-				List<GameObject> activeWord = letterProperties.GetMyWord();
-				float firstLetterOffset = (letterProperties.LetterIndex+1) * GridSpacing;
-				p.y += firstLetterOffset;
-				for(int i=0; i<activeWord.Count; i++) {
-					p.y -= GridSpacing;
-					activeWord[i].transform.position = p;
-				}
 			}
 		}
 
