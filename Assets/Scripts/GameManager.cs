@@ -5,7 +5,14 @@ using UnityEngine.UI;
 
 namespace WordWrap {
 
+	public enum GameState {
+		LookingForWords,
+		WordFound
+	}
+
 	public class GameManager : MonoBehaviour {
+
+		GameState gameState = GameState.LookingForWords;
 
 		public GameObject PrefabLetter;
 
@@ -31,7 +38,14 @@ namespace WordWrap {
 		}
 
 		void Update() {
-			MouseClickHandler();
+			switch(gameState) {
+				case GameState.LookingForWords:
+					MouseClickHandler();
+					break;
+				case GameState.WordFound:
+
+					break;
+			}
 		}
 
 		private void MouseClickHandler() {
