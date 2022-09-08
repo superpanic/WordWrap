@@ -40,15 +40,15 @@ namespace WordWrap {
 		void Update() {
 			switch(gameState) {
 				case GameState.LookingForWords:
-					MouseClickHandler();
+					RunBrowsing();
 					break;
 				case GameState.WordFound:
-
+					RunWordFound();
 					break;
 			}
 		}
 
-		private void MouseClickHandler() {
+		private void RunBrowsing() {
 			if( Input.GetMouseButtonUp(0) ) {
 				Vector3 mouseClickPos = Input.mousePosition;
 				Ray ray = Camera.main.ScreenPointToRay(mouseClickPos);
@@ -60,6 +60,19 @@ namespace WordWrap {
 					}
 				} 
 			}
+		}
+		private void RunWordFound() {
+			for(int i=0; i<SelectedWordObjects.Count; i++) {
+				Letter letter = SelectedWordObjects[i].GetComponent<Letter>();
+				List<GameObject> w = letter.GetMyWord();
+				for (int j = 0; j < w.Count; j++) {
+					Letter l = w[j].GetComponent<Letter>().GetLetter();
+				}
+			}
+		}
+
+		private void WaitForWordFound() {
+
 		}
 
 		private void AddWordsToScene() {
@@ -88,7 +101,7 @@ namespace WordWrap {
 		}
 
 		private void MoveWordToCenterLetter(Transform letter) {
-			ClearFoundWord();
+			ClearColorOfFoundWord();
 			Letter letterProperties = letter.GetComponent<Letter>();
 
 			List<GameObject> myWord = letterProperties.GetMyWord();
@@ -158,11 +171,11 @@ namespace WordWrap {
 				for (int i = 0; i < selectedWordLetterList.Count; i++) {
 					selectedWordLetterList[i].SetBaseColor((int)GameColors.BlockWord);
 				}
-				Debug.Log($"Word {SelectedWordString} is in dictionary!");
+				gameState = GameState.WordFound;
 			}
 		}
 
-		private void ClearFoundWord() {
+		private void ClearColorOfFoundWord() {
 			if (SelectedWordObjects.Count > 0)
 				for (int i = 0; i < SelectedWordObjects.Count; i++)
 					SelectedWordObjects[i].GetComponent<Letter>().SetBaseColor((int)GameColors.BlockFocus);
