@@ -34,13 +34,19 @@ namespace WordWrap {
 		}
 
 		void Update() {
+			MoveXY();
+		}
+
+		public void MoveXY() {
 			if(IsMoving) {
 				if(transform.position == Destination) {
 					IsMoving = false;
 				} else {
-					float l = Mathf.Lerp(transform.position.y, Destination.y, MotionSpeed);
+					float x = Mathf.Lerp(transform.position.x, Destination.x, MotionSpeed);
+					float y = Mathf.Lerp(transform.position.y, Destination.y, MotionSpeed);
 					Vector3 p = transform.position;
-					p.y = l;
+					p.y = y;
+					p.x = x;
 					transform.position = p;
 				}
 			}

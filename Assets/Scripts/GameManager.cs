@@ -68,24 +68,24 @@ namespace WordWrap {
 
 		private void RunWordFound() {
 			for(int i=0; i<SelectedWordObjects.Count; i++) {
-				Debug.Log("!");
-				//for(int )
+				//for(int j=0; j<) TODO: check if all letters have finished movement! 
 			}
 		}
 
 		private void StartExplodeSelectedWords() {
 			float spread = 1.2f;
-			float distance = 2.0f;
+			float distance = 7.5f;
 			for(int i=0; i<SelectedWordObjects.Count; i++) {
 				Letter letter = SelectedWordObjects[i].GetComponent<Letter>();
 				List<GameObject> w = letter.GetMyWord();
 				for (int j = 0; j < w.Count; j++) {
+					Letter l = w[j].GetComponent<Letter>();
 					Transform t = w[j].transform;
 					Vector3 p = t.position;
-					float x = p.x - distance;
+					float x = p.x - distance - p.x;
 					float y = p.y + p.y * spread;
 					Vector3 v = new Vector3(x,y,p.z);
-					t.position = v;
+					l.SetDestination(v);
 				}
 			}
 		}
