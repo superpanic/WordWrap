@@ -87,6 +87,10 @@ namespace WordWrap {
 			return UIText.text[0];
 		}
 
+		public bool GetIsMoving() {
+			return IsMoving;
+		}
+
 		public void SetMyWord(List<GameObject> w) {
 			MyWord = w;
 		}

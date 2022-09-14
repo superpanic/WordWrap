@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 namespace WordWrap {
 
@@ -11,6 +12,8 @@ namespace WordWrap {
 	}
 
 	public class GameManager : MonoBehaviour {
+
+		private System.Random Rnd;
 
 		GameState gameState = GameState.LookingForWords;
 
@@ -31,6 +34,7 @@ namespace WordWrap {
 		private string                 SelectedWordString;
 
 		void Start() {
+			if(Rnd==null) Rnd = new System.Random();
 			DictionaryFull = new DictionaryManager(path:"Assets/Dictionaries/sorted_words.txt", low:3, high:9);
 			DictionaryCommonWords = new DictionaryManager(path:"Assets/Dictionaries/common_words_eu_com.txt", low:3, high:7);
 			Debug.Assert(PrefabLetter, "A prefab letter has not been assigned!");
@@ -61,18 +65,29 @@ namespace WordWrap {
 				} 
 			}
 		}
+
 		private void RunWordFound() {
+			for(int i=0; i<SelectedWordObjects.Count; i++) {
+				Debug.Log("!");
+				//for(int )
+			}
+		}
+
+		private void StartExplodeSelectedWords() {
+			float spread = 1.2f;
+			float distance = 2.0f;
 			for(int i=0; i<SelectedWordObjects.Count; i++) {
 				Letter letter = SelectedWordObjects[i].GetComponent<Letter>();
 				List<GameObject> w = letter.GetMyWord();
 				for (int j = 0; j < w.Count; j++) {
-					Letter l = w[j].GetComponent<Letter>().GetLetter();
+					Transform t = w[j].transform;
+					Vector3 p = t.position;
+					float x = p.x - distance;
+					float y = p.y + p.y * spread;
+					Vector3 v = new Vector3(x,y,p.z);
+					t.position = v;
 				}
 			}
-		}
-
-		private void WaitForWordFound() {
-
 		}
 
 		private void AddWordsToScene() {
@@ -171,6 +186,7 @@ namespace WordWrap {
 				for (int i = 0; i < selectedWordLetterList.Count; i++) {
 					selectedWordLetterList[i].SetBaseColor((int)GameColors.BlockWord);
 				}
+				StartExplodeSelectedWords();
 				gameState = GameState.WordFound;
 			}
 		}
