@@ -17,7 +17,6 @@ namespace WordWrap {
 
 	public class Letter : MonoBehaviour {
 		private Text UIText;
-		public int Col;
 		public int LetterIndex;
 		private float MotionSpeed = 0.1f;
 		private Vector3 ScaleDefault;
@@ -26,6 +25,7 @@ namespace WordWrap {
 		private Vector3 Destination;
 		private bool IsMoving = false;
 		private bool IsInFocus = false;
+		private bool IsSelected = false;
 
 		void Start() {
 			Transform transform = this.transform.Find("letter");
@@ -95,6 +95,10 @@ namespace WordWrap {
 
 		public bool GetIsMoving() {
 			return IsMoving;
+		}
+
+		public void SetIsSelected(bool b) {
+			IsSelected = b;
 		}
 
 		public void SetMyWord(List<GameObject> w) {
