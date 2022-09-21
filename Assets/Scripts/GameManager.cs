@@ -123,8 +123,8 @@ namespace WordWrap {
 					Destroy(go);
 				}
 			}
-			WordObjects.RemoveRange(0, Math.Min(3, WordObjects.Count));
-			WordStrings.RemoveRange(0, Math.Min(3, WordStrings.Count));
+			WordObjects.RemoveRange(0, Math.Min(wordLength, WordObjects.Count));
+			WordStrings.RemoveRange(0, Math.Min(wordLength, WordStrings.Count));
 			SelectedWordLetters.Clear();
 		}
 
