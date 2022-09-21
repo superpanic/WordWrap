@@ -8,15 +8,17 @@ namespace WordWrap {
 
 	public enum GameState {
 		GameSetup,
-		FindingWords,
-		WordFound
+		PlayerLookingForWord,
+		CollectFoundWord,
+		MoveAllWordsToLeft,
+		AddNewWordsToGrid
 	}
 
 	public class GameManager : MonoBehaviour {
 
 		private System.Random Rnd;
 
-		GameState gameState = GameState.FindingWords;
+		GameState gameState = GameState.PlayerLookingForWord;
 
 		public GameObject PrefabLetter;
 
@@ -47,26 +49,66 @@ namespace WordWrap {
 			switch(gameState) {
 				case GameState.GameSetup:
 					AddInitialWordsToScene();
-					gameState = GameState.FindingWords;
+					gameState = GameState.PlayerLookingForWord;
 					break;
 
-				case GameState.FindingWords:
-					if(IsWordFound()) gameState = GameState.WordFound;
+				case GameState.PlayerLookingForWord:
+					if(IsWordFound()) gameState = GameState.CollectFoundWord;
 					break;
 
-				case GameState.WordFound:
+				case GameState.CollectFoundWord:
 					if(IsWordFoundCollected()) {
-						SelectedWordLetters.Clear();
 						RemoveCollectedWords();
-						gameState = GameState.FindingWords;
+						gameState = GameState.PlayerLookingForWord;
 					}
 					break;
-					
+
+				case GameState.MoveAllWordsToLeft:
+					if(IsWordsMovedToLeft()) {
+						gameState = GameState.AddNewWordsToGrid;
+					}
+					break;
+				
+				case GameState.AddNewWordsToGrid:
+					if(IsNewWordsAddedToGrid()) {
+						gameState = GameState.PlayerLookingForWord;
+					}
+					break;
 			}
 		}
 
-		private void RemoveCollectedWords() {
+		private bool IsWordsMovedToLeft() {
+			int column=0;
+			foreach(List<GameObject> goList in WordObjects) {
+				foreach(GameObject go in goList) {
+					Letter l = go.GetComponent<Letter>();
+					Vector3 destination = new Vector3(CalculateXPos(column), go.transform.position.y, 0f);
+					l.SetDestination(destination);
+				}
+				column++;
+			}
+			
+			return true;
+		}
 
+// TODO: loop to check if all letters have finished movement to the left!
+
+
+
+		private bool IsNewWordsAddedToGrid() {
+
+			return true;
+		}
+
+		private void RemoveCollectedWords() {
+			int wordLength = SelectedWordLetters.Count;
+			for(int i=0; i<wordLength; i++) {
+				foreach(GameObject go in WordObjects[i]) {
+					Destroy(go);
+				}
+			}
+			WordObjects.RemoveRange(0, Math.Min(3, WordObjects.Count));
+			WordStrings.RemoveRange(0, Math.Min(3, WordStrings.Count));
 			SelectedWordLetters.Clear();
 		}
 
@@ -160,13 +202,10 @@ namespace WordWrap {
 			for (int col = 0; col < MaxCols; col++) {
 				string word = DictionaryCommonWords.GetRandomWord();
 				Debug.Log($"Random word {col+1}: {word}");
-
 				List<GameObject> myWord = new List<GameObject>();
-				int offset = word.Length / 2;
-
 				for (int letterIndex = 0; letterIndex < word.Length; letterIndex++) {	
 					char letter = char.ToUpper(word[letterIndex]);
-					GameObject letterObject = AddLetterToScene(letter, col, letterIndex, offset);
+					GameObject letterObject = AddLetterToScene(letter, col, letterIndex, word.Length);
 					Letter letterProperties = letterObject.GetComponent<Letter>();
 					letterProperties.SetMyWord(myWord);
 					if(letterIndex == word.Length/2) {
@@ -181,10 +220,8 @@ namespace WordWrap {
 			}
 		}
 
-
-
-		private GameObject AddLetterToScene(char letter, int col, int letterIndex, int offset) {
-			Vector3 pos = new Vector3(GridSpacing * (col - GridColOffset), -GridSpacing * (letterIndex - offset), 0);
+		private GameObject AddLetterToScene(char letter, int col, int letterIndex, int wordLength) {
+			Vector3 pos = new Vector3(CalculateXPos(column:col), CalculateYPos(wordLength:wordLength, letterIndex:letterIndex), 0);
 			GameObject letterObject = Instantiate(PrefabLetter, pos, Quaternion.identity) as GameObject;
 			InitLetterObject(letterIndex, letterObject);
 			SetLetter(letter, letterObject);
@@ -201,8 +238,6 @@ namespace WordWrap {
 			Text textObject = transform.GetComponent<Text>();
 			textObject.text = "" + c;
 		}
-
-
 
 		private void StartExplodeSelectedWords() {
 			float spread = 1.2f;
@@ -231,6 +266,15 @@ namespace WordWrap {
 				}
 			}
 			SelectedWordLetters.Clear();
+		}
+
+		private float CalculateXPos(int column) {
+			return GridSpacing * (column - GridColOffset);
+		}
+
+		private float CalculateYPos(int wordLength, int letterIndex) {
+			int offset = wordLength / 2;
+			return -GridSpacing * (letterIndex - offset);
 		}
 	}
 }
