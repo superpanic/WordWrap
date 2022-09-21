@@ -23,6 +23,7 @@ namespace WordWrap {
 		private float ScaleMultiplier = 1.0f;
 		private List<GameObject> MyWord;
 		private Vector3 Destination;
+		private float moveDelay = 0f;
 		private bool IsMoving = false;
 		private bool IsInFocus = false;
 		private bool IsSelected = false;
@@ -42,12 +43,16 @@ namespace WordWrap {
 				if(transform.position == Destination) {
 					IsMoving = false;
 				} else {
-					float x = Mathf.Lerp(transform.position.x, Destination.x, MotionSpeed);
-					float y = Mathf.Lerp(transform.position.y, Destination.y, MotionSpeed);
-					Vector3 p = transform.position;
-					p.y = y;
-					p.x = x;
-					transform.position = p;
+					if(moveDelay > 0f) {
+						moveDelay = Math.Max(0f, moveDelay-Time.deltaTime);
+					} else {
+						float x = Mathf.Lerp(transform.position.x, Destination.x, MotionSpeed);
+						float y = Mathf.Lerp(transform.position.y, Destination.y, MotionSpeed);
+						Vector3 p = transform.position;
+						p.y = y;
+						p.x = x;
+						transform.position = p;
+					}
 				}
 			}
 		}
@@ -60,9 +65,10 @@ namespace WordWrap {
 			this.transform.localScale = sc;
 		}
 
-		public void SetDestination(Vector3 d) {
-			if(d != transform.position) {
-				Destination = d;
+		public void SetDestination(Vector3 destination, float delay = 0f) {
+			if(destination != transform.position) {
+				Destination = destination;
+				moveDelay = delay;
 				IsMoving = true;
 			}
 		}

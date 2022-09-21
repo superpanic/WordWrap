@@ -10,7 +10,8 @@ namespace WordWrap {
 		GameSetup,
 		PlayerLookingForWord,
 		CollectFoundWord,
-		MoveAllWordsToLeft,
+		StartMoveAllWordsToLeft,
+		MovingAllWordsToLeft,
 		AddNewWordsToGrid
 	}
 
@@ -59,12 +60,18 @@ namespace WordWrap {
 				case GameState.CollectFoundWord:
 					if(IsWordFoundCollected()) {
 						RemoveCollectedWords();
-						gameState = GameState.PlayerLookingForWord;
+						gameState = GameState.StartMoveAllWordsToLeft;
 					}
 					break;
 
-				case GameState.MoveAllWordsToLeft:
-					if(IsWordsMovedToLeft()) {
+				case GameState.StartMoveAllWordsToLeft:
+					if(StartedMovingWordsToLeft()) {
+						gameState = GameState.MovingAllWordsToLeft;
+					}
+					break;
+
+				case GameState.MovingAllWordsToLeft:
+					if(HasAllWordsMovedToLeft()) {
 						gameState = GameState.AddNewWordsToGrid;
 					}
 					break;
@@ -77,13 +84,15 @@ namespace WordWrap {
 			}
 		}
 
-		private bool IsWordsMovedToLeft() {
+		private bool StartedMovingWordsToLeft() {
 			int column=0;
+			int delayCounter = 0;
 			foreach(List<GameObject> goList in WordObjects) {
 				foreach(GameObject go in goList) {
 					Letter l = go.GetComponent<Letter>();
 					Vector3 destination = new Vector3(CalculateXPos(column), go.transform.position.y, 0f);
-					l.SetDestination(destination);
+					delayCounter++;
+					l.SetDestination(destination, delayCounter*0.01f);
 				}
 				column++;
 			}
@@ -91,9 +100,16 @@ namespace WordWrap {
 			return true;
 		}
 
-// TODO: loop to check if all letters have finished movement to the left!
-
-
+		private bool HasAllWordsMovedToLeft() {
+			bool finishedMoving = true;
+			foreach(List<GameObject> goList in WordObjects) {
+				foreach(GameObject go in goList) {
+					Letter l = go.GetComponent<Letter>();
+					if(l.GetIsMoving()) finishedMoving = false;
+				}
+			}
+			return finishedMoving;
+		}
 
 		private bool IsNewWordsAddedToGrid() {
 
