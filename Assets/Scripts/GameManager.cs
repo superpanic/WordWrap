@@ -49,7 +49,8 @@ namespace WordWrap {
 		void Update() {
 			switch(gameState) {
 				case GameState.GameSetup:
-					AddInitialWordsToScene();
+					//AddInitialWordsToScene();
+					IsNewWordsAddedToGrid();
 					gameState = GameState.PlayerLookingForWord;
 					break;
 
@@ -101,17 +102,39 @@ namespace WordWrap {
 		}
 
 		private bool HasAllWordsMovedToLeft() {
-			bool finishedMoving = true;
 			foreach(List<GameObject> goList in WordObjects) {
 				foreach(GameObject go in goList) {
 					Letter l = go.GetComponent<Letter>();
-					if(l.GetIsMoving()) finishedMoving = false;
+					if(l.GetIsMoving()) {
+						return false;
+					}
 				}
 			}
-			return finishedMoving;
+			return true;
 		}
 
 		private bool IsNewWordsAddedToGrid() {
+			int nCols = MaxCols-WordObjects.Count;
+			int colOffset = MaxCols-nCols;
+			for (int col = 0; col < nCols; col++) {
+				string word = DictionaryCommonWords.GetRandomWord();
+				Debug.Log($"Random word {col+1}: {word}");
+				List<GameObject> myWord = new List<GameObject>();
+				for (int letterIndex = 0; letterIndex < word.Length; letterIndex++) {	
+					char letter = char.ToUpper(word[letterIndex]);
+					GameObject letterObject = AddLetterToScene(letter, col+colOffset, letterIndex, word.Length);
+					Letter letterProperties = letterObject.GetComponent<Letter>();
+					letterProperties.SetMyWord(myWord);
+					if(letterIndex == word.Length/2) {
+						letterProperties.SetInFocus();
+						letterProperties.SetBaseColor((int)GameColors.BlockFocus);
+					}
+					myWord.Add(letterObject);
+				}
+
+				WordObjects.Add(myWord);
+				WordStrings.Add(word);
+			}
 
 			return true;
 		}
