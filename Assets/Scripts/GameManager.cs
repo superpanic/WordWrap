@@ -49,7 +49,6 @@ namespace WordWrap {
 		void Update() {
 			switch(gameState) {
 				case GameState.GameSetup:
-					//AddInitialWordsToScene();
 					IsNewWordsAddedToGrid();
 					gameState = GameState.PlayerLookingForWord;
 					break;
@@ -235,28 +234,6 @@ namespace WordWrap {
 				}
 			}
 			return true;
-		}
-
-		private void AddInitialWordsToScene() {
-			for (int col = 0; col < MaxCols; col++) {
-				string word = DictionaryCommonWords.GetRandomWord();
-				Debug.Log($"Random word {col+1}: {word}");
-				List<GameObject> myWord = new List<GameObject>();
-				for (int letterIndex = 0; letterIndex < word.Length; letterIndex++) {	
-					char letter = char.ToUpper(word[letterIndex]);
-					GameObject letterObject = AddLetterToScene(letter, col, letterIndex, word.Length);
-					Letter letterProperties = letterObject.GetComponent<Letter>();
-					letterProperties.SetMyWord(myWord);
-					if(letterIndex == word.Length/2) {
-						letterProperties.SetInFocus();
-						letterProperties.SetBaseColor((int)GameColors.BlockFocus);
-					}
-					myWord.Add(letterObject);
-				}
-
-				WordObjects.Add(myWord);
-				WordStrings.Add(word);
-			}
 		}
 
 		private GameObject AddLetterToScene(char letter, int col, int letterIndex, int wordLength) {
