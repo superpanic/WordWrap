@@ -12,7 +12,9 @@ namespace WordWrap {
 		Background,
 		Block,
 		BlockFocus,
-		BlockWord
+		BlockWord,
+		BlockBonus,
+		BlockFocusBonus
 	}
 
 	public class Letter : MonoBehaviour {
@@ -40,7 +42,9 @@ namespace WordWrap {
 
 		public void MoveXY() {
 			if(IsMoving) {
-				if(transform.position == Destination) {
+				Vector3 delta = transform.position - Destination;
+				if(delta.magnitude < 0.01) {
+					transform.position = Destination;
 					IsMoving = false;
 				} else {
 					if(moveDelay > 0f) {

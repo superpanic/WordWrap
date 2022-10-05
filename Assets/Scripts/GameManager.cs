@@ -16,6 +16,11 @@ namespace WordWrap {
 	}
 
 	public class GameManager : MonoBehaviour {
+		public const byte MAX_ROWS = 7;
+		public const byte MAX_COLS = 9;
+		private const float OUTSIDE_RIGHT_X_POS = 7.0f;
+		public const float GRID_SPACING = 1.1f;
+		public const byte GRID_COL_OFFSET = 4;
 
 		private System.Random Rnd;
 
@@ -26,22 +31,16 @@ namespace WordWrap {
 		private DictionaryManager DictionaryFull;
 		private DictionaryManager DictionaryCommonWords;
 
-		public byte MaxRows = 7;
-		public byte MaxCols = 9;
 
-		public float GridSpacing = 1.1f;
-		public byte GridColOffset = 4;
-
-		private List<List<GameObject>> WordObjects = new List<List<GameObject>>();
-		private List<string>           WordStrings = new List<string>();
+		private List<List<GameObject>> WordObjectsInPlay = new List<List<GameObject>>();
+		private List<string>           WordStringsInPlay = new List<string>();
 		private List<GameObject>       SelectedWordLetters = new List<GameObject>();
-		private string                 SelectedWordString;
-		private string                 LastCollectedString;
+		private string                 SelectedWordString = "";
 
 		void Start() {
 			if(Rnd==null) Rnd = new System.Random();
-			DictionaryFull = new DictionaryManager(path:"Assets/Dictionaries/sorted_words.txt", low:3, high:9);
-			DictionaryCommonWords = new DictionaryManager(path:"Assets/Dictionaries/common_words_eu_com.txt", low:3, high:7);
+			DictionaryFull = new DictionaryManager(path:"Assets/Dictionaries/sorted_words.txt", low:3, high:MAX_COLS);
+			DictionaryCommonWords = new DictionaryManager(path:"Assets/Dictionaries/common_words_eu_com.txt", low:3, high:MAX_ROWS);
 			Debug.Assert(PrefabLetter, "A prefab letter has not been assigned!");
 			gameState = GameState.GameSetup;
 		}
@@ -87,7 +86,7 @@ namespace WordWrap {
 		private bool StartedMovingWordsToLeft() {
 			int column=0;
 			int delayCounter = 0;
-			foreach(List<GameObject> goList in WordObjects) {
+			foreach(List<GameObject> goList in WordObjectsInPlay) {
 				foreach(GameObject go in goList) {
 					Letter l = go.GetComponent<Letter>();
 					Vector3 destination = new Vector3(CalculateXPos(column), go.transform.position.y, 0f);
@@ -101,7 +100,7 @@ namespace WordWrap {
 		}
 
 		private bool HasAllWordsMovedToLeft() {
-			foreach(List<GameObject> goList in WordObjects) {
+			foreach(List<GameObject> goList in WordObjectsInPlay) {
 				foreach(GameObject go in goList) {
 					Letter l = go.GetComponent<Letter>();
 					if(l.GetIsMoving()) {
@@ -113,10 +112,17 @@ namespace WordWrap {
 		}
 
 		private bool IsNewWordsAddedToGrid() {
-			int nCols = MaxCols-WordObjects.Count;
-			int colOffset = MaxCols-nCols;
+			int nCols = MAX_COLS-WordObjectsInPlay.Count;
+			int colOffset = MAX_COLS-nCols;
 			for (int col = 0; col < nCols; col++) {
-				string word = DictionaryCommonWords.GetRandomWord();
+				bool isSelectedWord = false;
+				string word = "";
+				if(col == 0 && SelectedWordString.Length > 0) {
+					word = SelectedWordString;
+					isSelectedWord = true;
+				} else {
+					word = DictionaryCommonWords.GetRandomWord();
+				}
 				Debug.Log($"Random word {col+1}: {word}");
 				List<GameObject> myWord = new List<GameObject>();
 				for (int letterIndex = 0; letterIndex < word.Length; letterIndex++) {	
@@ -124,15 +130,20 @@ namespace WordWrap {
 					GameObject letterObject = AddLetterToScene(letter, col+colOffset, letterIndex, word.Length);
 					Letter letterProperties = letterObject.GetComponent<Letter>();
 					letterProperties.SetMyWord(myWord);
+					if(isSelectedWord) letterProperties.SetBaseColor((int)GameColors.BlockBonus);
 					if(letterIndex == word.Length/2) {
 						letterProperties.SetInFocus();
-						letterProperties.SetBaseColor((int)GameColors.BlockFocus);
+						if(isSelectedWord) {
+							letterProperties.SetBaseColor((int)GameColors.BlockFocusBonus);
+						} else {
+							letterProperties.SetBaseColor((int)GameColors.BlockFocus);
+						}
 					}
 					myWord.Add(letterObject);
 				}
 
-				WordObjects.Add(myWord);
-				WordStrings.Add(word);
+				WordObjectsInPlay.Add(myWord);
+				WordStringsInPlay.Add(word);
 			}
 
 			return true;
@@ -141,12 +152,12 @@ namespace WordWrap {
 		private void RemoveCollectedWords() {
 			int wordLength = SelectedWordLetters.Count;
 			for(int i=0; i<wordLength; i++) {
-				foreach(GameObject go in WordObjects[i]) {
+				foreach(GameObject go in WordObjectsInPlay[i]) {
 					Destroy(go);
 				}
 			}
-			WordObjects.RemoveRange(0, Math.Min(wordLength, WordObjects.Count));
-			WordStrings.RemoveRange(0, Math.Min(wordLength, WordStrings.Count));
+			WordObjectsInPlay.RemoveRange(0, Math.Min(wordLength, WordObjectsInPlay.Count));
+			WordStringsInPlay.RemoveRange(0, Math.Min(wordLength, WordStringsInPlay.Count));
 			SelectedWordLetters.Clear();
 		}
 
@@ -176,7 +187,7 @@ namespace WordWrap {
 			int offset = letterIndex;
 			for (int i = 0; i < wordLength; i++) {
 				Letter currentLetterProperties = myWord[i].transform.GetComponent<Letter>();
-				Vector3 pos = new Vector3(currentXPos, -GridSpacing * (i - offset), 0);
+				Vector3 pos = new Vector3(currentXPos, -GRID_SPACING * (i - offset), 0);
 				currentLetterProperties.SetDestination(pos);
 				currentLetterProperties.SetBaseColor((int)GameColors.Block);
 			}
@@ -193,11 +204,11 @@ namespace WordWrap {
 		private bool GetSelectedWord(Transform letterObject) {
 			Letter letterProperties = letterObject.GetComponent<Letter>();
 			List<GameObject> word = letterProperties.GetMyWord();
-			int wordIndex = WordObjects.IndexOf(word); // ! Potential problem if the same word is present more than once?
+			int wordIndex = WordObjectsInPlay.IndexOf(word); // ! Potential problem if the same word is present more than once?
 			SelectedWordString = "";
 			List<Letter> selectedWordLetterList = new List<Letter>();
 			for (int i = 0; i <= wordIndex; i++) {
-				List<GameObject> wordObject = WordObjects[i];
+				List<GameObject> wordObject = WordObjectsInPlay[i];
 				Letter selectedLetter = null;
 				for (int j = 0; j < wordObject.Count; j++) {
 					Letter lp = wordObject[j].GetComponent<Letter>();
@@ -208,7 +219,7 @@ namespace WordWrap {
 						break;
 					}
 				}
-				Debug.Assert(selectedLetter != null, $"Word {WordStrings[i]} does not have a selected letter!");
+				Debug.Assert(selectedLetter != null, $"Word {WordStringsInPlay[i]} does not have a selected letter!");
 				SelectedWordString += selectedLetter.GetLetter().ToString();
 				selectedLetter.SetBaseColor((int)GameColors.BlockFocus);
 			}
@@ -237,8 +248,10 @@ namespace WordWrap {
 		}
 
 		private GameObject AddLetterToScene(char letter, int col, int letterIndex, int wordLength) {
-			Vector3 pos = new Vector3(CalculateXPos(column:col), CalculateYPos(wordLength:wordLength, letterIndex:letterIndex), 0);
-			GameObject letterObject = Instantiate(PrefabLetter, pos, Quaternion.identity) as GameObject;
+			Vector3 outside = new Vector3(OUTSIDE_RIGHT_X_POS, (float)Rnd.Next(-5,5), 0f); // TODO: make the transition effect work in Z also
+			Vector3 pos = new Vector3(CalculateXPos(column:col), CalculateYPos(wordLength:wordLength, letterIndex:letterIndex), 0f);
+			GameObject letterObject = Instantiate(PrefabLetter, outside, Quaternion.identity) as GameObject;
+			letterObject.GetComponent<Letter>().SetDestination(pos, 0.01f);
 			InitLetterObject(letterIndex, letterObject);
 			SetLetter(letter, letterObject);
 			return letterObject;
@@ -285,12 +298,12 @@ namespace WordWrap {
 		}
 
 		private float CalculateXPos(int column) {
-			return GridSpacing * (column - GridColOffset);
+			return GRID_SPACING * (column - GRID_COL_OFFSET);
 		}
 
 		private float CalculateYPos(int wordLength, int letterIndex) {
 			int offset = wordLength / 2;
-			return -GridSpacing * (letterIndex - offset);
+			return -GRID_SPACING * (letterIndex - offset);
 		}
 	}
 }
