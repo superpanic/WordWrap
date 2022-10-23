@@ -31,11 +31,13 @@ namespace WordWrap {
 		private DictionaryManager DictionaryFull;
 		private DictionaryManager DictionaryCommonWords;
 
-
 		private List<List<GameObject>> WordObjectsInPlay = new List<List<GameObject>>();
 		private List<string>           WordStringsInPlay = new List<string>();
 		private List<GameObject>       SelectedWordLetters = new List<GameObject>();
 		private string                 SelectedWordString = "";
+
+		private List<string>           AllWordStringsFound = new List<string>();
+		private int                    AllWordStringsFoundIndex = 0;
 
 		void Start() {
 			if(Rnd==null) Rnd = new System.Random();
@@ -111,11 +113,29 @@ namespace WordWrap {
 			return true;
 		}
 
+		private string NextWord(int col) {
+			string word = "";
+			if(AllWordStringsFound.Count >= MAX_COLS) {
+				word = AllWordStringsFound[AllWordStringsFoundIndex];
+				AllWordStringsFoundIndex++;
+				if(AllWordStringsFoundIndex>=AllWordStringsFound.Count) AllWordStringsFoundIndex = 0;
+			} else {
+				if(col == 0 && SelectedWordString.Length > 0) {
+					word = SelectedWordString;
+				} else {
+					word = DictionaryCommonWords.GetRandomWord();
+				}
+			}
+			return word;
+		}
+
 		private bool IsNewWordsAddedToGrid() {
 			int nCols = MAX_COLS-WordObjectsInPlay.Count;
 			int colOffset = MAX_COLS-nCols;
 			for (int col = 0; col < nCols; col++) {
 				bool isSelectedWord = false;
+				
+				/*
 				string word = "";
 				if(col == 0 && SelectedWordString.Length > 0) {
 					word = SelectedWordString;
@@ -123,6 +143,9 @@ namespace WordWrap {
 				} else {
 					word = DictionaryCommonWords.GetRandomWord();
 				}
+				*/
+				string word = NextWord(col);
+
 				Debug.Log($"Random word {col+1}: {word}");
 				List<GameObject> myWord = new List<GameObject>();
 				for (int letterIndex = 0; letterIndex < word.Length; letterIndex++) {	
@@ -229,6 +252,7 @@ namespace WordWrap {
 					selectedWordLetterList[i].SetIsSelected(true);
 					selectedWordLetterList[i].SetBaseColor((int)GameColors.BlockWord);
 				}
+				AllWordStringsFound.Add(SelectedWordString);
 				StartExplodeSelectedWords();
 				return true;
 			}
