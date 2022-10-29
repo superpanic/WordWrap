@@ -90,7 +90,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   palette: {fileID: 6927204851079917844, guid: 1e077e4c2516947daa83c77e2b5b4e0e, type: 3}
-  colorIndex: 0
+  colorIndex: 3
   intensity: 1
   recursive: 0
 --- !u!1 &2639102714956877649

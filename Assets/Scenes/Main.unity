@@ -198,6 +198,30 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6927204851079917844, guid: 1e077e4c2516947daa83c77e2b5b4e0e, type: 3}
+      propertyPath: colors.Array.data[5].b
+      value: 0.6037736
+      objectReference: {fileID: 0}
+    - target: {fileID: 6927204851079917844, guid: 1e077e4c2516947daa83c77e2b5b4e0e, type: 3}
+      propertyPath: colors.Array.data[5].g
+      value: 0.6037736
+      objectReference: {fileID: 0}
+    - target: {fileID: 6927204851079917844, guid: 1e077e4c2516947daa83c77e2b5b4e0e, type: 3}
+      propertyPath: colors.Array.data[5].r
+      value: 0.6037736
+      objectReference: {fileID: 0}
+    - target: {fileID: 6927204851079917844, guid: 1e077e4c2516947daa83c77e2b5b4e0e, type: 3}
+      propertyPath: colors.Array.data[6].b
+      value: 0.4528302
+      objectReference: {fileID: 0}
+    - target: {fileID: 6927204851079917844, guid: 1e077e4c2516947daa83c77e2b5b4e0e, type: 3}
+      propertyPath: colors.Array.data[6].g
+      value: 0.4528302
+      objectReference: {fileID: 0}
+    - target: {fileID: 6927204851079917844, guid: 1e077e4c2516947daa83c77e2b5b4e0e, type: 3}
+      propertyPath: colors.Array.data[6].r
+      value: 0.4528302
+      objectReference: {fileID: 0}
     - target: {fileID: 6927204851079917845, guid: 1e077e4c2516947daa83c77e2b5b4e0e, type: 3}
       propertyPath: m_Name
       value: Palette
@@ -278,10 +302,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PrefabLetter: {fileID: 2639102714956877649, guid: 640b6be918d98744b8b881120c820e31, type: 3}
-  MaxRows: 9
-  MaxCols: 11
-  GridSpacing: 1.1
-  GridColOffset: 5
 --- !u!4 &374248801
 Transform:
   m_ObjectHideFlags: 0

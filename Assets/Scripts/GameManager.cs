@@ -83,6 +83,9 @@ namespace WordWrap {
 					}
 					break;
 			}
+			if(SelectedWordLetters.Count > 0) {
+				Debug.Log($"    Selected letters: {SelectedWordLetters.Count} \n    GameState: {Enum.GetName(typeof(GameState), gameState)}");
+			}
 		}
 
 		private bool StartedMovingWordsToLeft() {
@@ -113,8 +116,9 @@ namespace WordWrap {
 			return true;
 		}
 
-		private string NextWord(int col) {
+		private string GetNextWord(int col, out bool isRandomWord) {
 			string word = "";
+			isRandomWord = false;
 			if(AllWordStringsFound.Count >= MAX_COLS) {
 				word = AllWordStringsFound[AllWordStringsFoundIndex];
 				AllWordStringsFoundIndex++;
@@ -124,6 +128,7 @@ namespace WordWrap {
 					word = SelectedWordString;
 				} else {
 					word = DictionaryCommonWords.GetRandomWord();
+					isRandomWord = true;
 				}
 			}
 			return word;
@@ -133,19 +138,8 @@ namespace WordWrap {
 			int nCols = MAX_COLS-WordObjectsInPlay.Count;
 			int colOffset = MAX_COLS-nCols;
 			for (int col = 0; col < nCols; col++) {
-				bool isSelectedWord = false;
-				
-				/*
-				string word = "";
-				if(col == 0 && SelectedWordString.Length > 0) {
-					word = SelectedWordString;
-					isSelectedWord = true;
-				} else {
-					word = DictionaryCommonWords.GetRandomWord();
-				}
-				*/
-				string word = NextWord(col);
-
+				bool isRandomWord = false;
+				string word = GetNextWord(col, out isRandomWord);
 				Debug.Log($"Random word {col+1}: {word}");
 				List<GameObject> myWord = new List<GameObject>();
 				for (int letterIndex = 0; letterIndex < word.Length; letterIndex++) {	
@@ -153,23 +147,38 @@ namespace WordWrap {
 					GameObject letterObject = AddLetterToScene(letter, col+colOffset, letterIndex, word.Length);
 					Letter letterProperties = letterObject.GetComponent<Letter>();
 					letterProperties.SetMyWord(myWord);
-					if(isSelectedWord) letterProperties.SetBaseColor((int)GameColors.BlockBonus);
-					if(letterIndex == word.Length/2) {
-						letterProperties.SetInFocus();
-						if(isSelectedWord) {
-							letterProperties.SetBaseColor((int)GameColors.BlockFocusBonus);
-						} else {
-							letterProperties.SetBaseColor((int)GameColors.BlockFocus);
-						}
-					}
+					if(isRandomWord) letterProperties.SetIsRandom(true);
+					bool isLetterInFocus = (letterIndex == word.Length/2);
+					if(isLetterInFocus) letterProperties.SetInFocus();
+					ColorBlock(letterProperties, isLetterInFocus, isRandomWord);
 					myWord.Add(letterObject);
 				}
-
 				WordObjectsInPlay.Add(myWord);
 				WordStringsInPlay.Add(word);
 			}
 
 			return true;
+		}
+
+		private void ColorBlock(Letter letterProperties, bool isLetterInFocus, bool isRandomWord) {
+			if(isLetterInFocus) {
+				if(isRandomWord) {
+					letterProperties.SetBaseColor((int)GameColors.RANDOM_WORD_FOCUS);
+				} else {
+					letterProperties.SetBaseColor((int)GameColors.WORD_FOCUS);
+				}
+			} else {
+				if(isRandomWord) {
+					letterProperties.SetIsRandom(true);
+					letterProperties.SetBaseColor((int)GameColors.RANDOM_WORD);
+				} else {
+					letterProperties.SetBaseColor((int)GameColors.WORD);
+				}
+			}
+		}
+
+		private bool IsLetterInFocus(int letterIndex, int wordLength) {
+			return (letterIndex == wordLength/2);
 		}
 
 		private void RemoveCollectedWords() {
@@ -200,7 +209,8 @@ namespace WordWrap {
 		}
 
 		private bool MoveWordToCenterLetter(Transform letter) {
-			ClearFoundWord();
+			//ClearFoundWord();
+			SelectedWordLetters.Clear();
 			Letter letterProperties = letter.GetComponent<Letter>();
 
 			List<GameObject> myWord = letterProperties.GetMyWord();
@@ -212,14 +222,14 @@ namespace WordWrap {
 				Letter currentLetterProperties = myWord[i].transform.GetComponent<Letter>();
 				Vector3 pos = new Vector3(currentXPos, -GRID_SPACING * (i - offset), 0);
 				currentLetterProperties.SetDestination(pos);
-				currentLetterProperties.SetBaseColor((int)GameColors.Block);
+				currentLetterProperties.SetBaseColor((int)GameColors.WORD);
 			}
 
 			if(letterProperties.GetIsInFocus()) {
 				return GetSelectedWord(letter);
 			} else {
 				letterProperties.SetInFocus();
-				letterProperties.SetBaseColor((int)GameColors.BlockFocus);
+				letterProperties.SetBaseColor((int)GameColors.WORD_FOCUS);
 			}
 			return false;
 		}
@@ -244,13 +254,13 @@ namespace WordWrap {
 				}
 				Debug.Assert(selectedLetter != null, $"Word {WordStringsInPlay[i]} does not have a selected letter!");
 				SelectedWordString += selectedLetter.GetLetter().ToString();
-				selectedLetter.SetBaseColor((int)GameColors.BlockFocus);
+				selectedLetter.SetBaseColor((int)GameColors.WORD_FOCUS);
 			}
 
 			if (DictionaryFull.SearchString(SelectedWordString) > 0) {
 				for (int i = 0; i < selectedWordLetterList.Count; i++) {
 					selectedWordLetterList[i].SetIsSelected(true);
-					selectedWordLetterList[i].SetBaseColor((int)GameColors.BlockWord);
+					selectedWordLetterList[i].SetBaseColor((int)GameColors.TEXT_BLOCK_FOUND_WORD);
 				}
 				AllWordStringsFound.Add(SelectedWordString);
 				StartExplodeSelectedWords();
@@ -308,17 +318,6 @@ namespace WordWrap {
 					l.SetDestination(v);
 				}
 			}
-		}
-
-		private void ClearFoundWord() {
-			if (SelectedWordLetters.Count > 0) {
-				for (int i = 0; i < SelectedWordLetters.Count; i++) {
-					Letter l = SelectedWordLetters[i].GetComponent<Letter>();
-					l.SetIsSelected(false);
-					l.SetBaseColor((int)GameColors.BlockFocus);
-				}
-			}
-			SelectedWordLetters.Clear();
 		}
 
 		private float CalculateXPos(int column) {

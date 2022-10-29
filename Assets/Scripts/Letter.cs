@@ -7,14 +7,14 @@ using UnityEngine.UI;
 namespace WordWrap {
 
 	public enum GameColors {
-		Letter,
-		Black,
-		Background,
-		Block,
-		BlockFocus,
-		BlockWord,
-		BlockBonus,
-		BlockFocusBonus
+		LETTER,
+		BLACK,
+		WHITE,
+		WORD,
+		WORD_FOCUS,
+		RANDOM_WORD,
+		RANDOM_WORD_FOCUS,
+		TEXT_BLOCK_FOUND_WORD
 	}
 
 	public class Letter : MonoBehaviour {
@@ -29,11 +29,15 @@ namespace WordWrap {
 		private bool IsMoving = false;
 		private bool IsInFocus = false;
 		private bool IsSelected = false;
+		private bool IsRandomWord = false;
+
+		private int ColorListLength;
 
 		void Start() {
 			Transform transform = this.transform.Find("letter");
 			UIText = transform.GetComponent<Text>();
 			ScaleDefault = this.transform.localScale;
+			ColorListLength = Enum.GetNames(typeof(GameColors)).Length;
 		}
 
 		void Update() {
@@ -83,13 +87,11 @@ namespace WordWrap {
 					MyWord[i].GetComponent<Letter>().RemoveInFocus();
 				}
 				IsInFocus = true;
-				//SetBaseColor((int)GameColors.BlueLight);
 			}
 		}
 
 		public void RemoveInFocus() {
 			IsInFocus = false;
-			//SetBaseColor((int)GameColors.Blue);
 		}
 
 		public bool GetIsInFocus() {
@@ -111,6 +113,14 @@ namespace WordWrap {
 			IsSelected = b;
 		}
 
+		public void SetIsRandom(bool b) {
+			IsRandomWord = b;
+		}
+
+		public bool GetRandom(bool b) {
+			return IsRandomWord;
+		}
+
 		public void SetMyWord(List<GameObject> w) {
 			MyWord = w;
 		}
@@ -123,6 +133,13 @@ namespace WordWrap {
 			Transform square = this.transform.Find("square");
 			Colorize colorizer = square.GetComponent<Colorize>();
 			colorizer.colorIndex = col;
+		}
+
+		public void SetBaseColorOfWord(int col) {
+			if(col>=ColorListLength) return;
+			for(int i=0; i<MyWord.Count; i++) {
+				MyWord[i].GetComponent<Letter>().SetBaseColor(col);
+			}
 		}
 
 	}
