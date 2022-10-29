@@ -117,7 +117,7 @@ namespace WordWrap {
 			IsRandomWord = b;
 		}
 
-		public bool GetRandom(bool b) {
+		public bool GetRandom() {
 			return IsRandomWord;
 		}
 

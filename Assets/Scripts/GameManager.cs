@@ -9,6 +9,7 @@ namespace WordWrap {
 	public enum GameState {
 		GameSetup,
 		PlayerLookingForWord,
+		HighlightDelay,
 		CollectFoundWord,
 		StartMoveAllWordsToLeft,
 		MovingAllWordsToLeft,
@@ -30,6 +31,9 @@ namespace WordWrap {
 
 		private DictionaryManager DictionaryFull;
 		private DictionaryManager DictionaryCommonWords;
+
+		private float HighlightTimer;
+		private const float HightlightTimerDelay = 1.0f;
 
 		private List<List<GameObject>> WordObjectsInPlay = new List<List<GameObject>>();
 		private List<string>           WordStringsInPlay = new List<string>();
@@ -55,7 +59,17 @@ namespace WordWrap {
 					break;
 
 				case GameState.PlayerLookingForWord:
-					if(IsWordFound()) gameState = GameState.CollectFoundWord;
+					if(IsWordFound()) {
+						HighlightTimer = Time.time + HightlightTimerDelay;
+						gameState = GameState.HighlightDelay;
+					}
+					break;
+
+				case GameState.HighlightDelay:
+					if(IsHightlightTimerDone()) {
+						StartExplodeSelectedWords();
+						gameState = GameState.CollectFoundWord;
+					}
 					break;
 
 				case GameState.CollectFoundWord:
@@ -82,9 +96,6 @@ namespace WordWrap {
 						gameState = GameState.PlayerLookingForWord;
 					}
 					break;
-			}
-			if(SelectedWordLetters.Count > 0) {
-				Debug.Log($"    Selected letters: {SelectedWordLetters.Count} \n    GameState: {Enum.GetName(typeof(GameState), gameState)}");
 			}
 		}
 
@@ -150,7 +161,7 @@ namespace WordWrap {
 					if(isRandomWord) letterProperties.SetIsRandom(true);
 					bool isLetterInFocus = (letterIndex == word.Length/2);
 					if(isLetterInFocus) letterProperties.SetInFocus();
-					ColorBlock(letterProperties, isLetterInFocus, isRandomWord);
+					ColorBlock(letterProperties);
 					myWord.Add(letterObject);
 				}
 				WordObjectsInPlay.Add(myWord);
@@ -160,7 +171,9 @@ namespace WordWrap {
 			return true;
 		}
 
-		private void ColorBlock(Letter letterProperties, bool isLetterInFocus, bool isRandomWord) {
+		private void ColorBlock(Letter letterProperties) {
+			bool isRandomWord = letterProperties.GetRandom();
+			bool isLetterInFocus = letterProperties.GetIsInFocus();
 			if(isLetterInFocus) {
 				if(isRandomWord) {
 					letterProperties.SetBaseColor((int)GameColors.RANDOM_WORD_FOCUS);
@@ -193,6 +206,10 @@ namespace WordWrap {
 			SelectedWordLetters.Clear();
 		}
 
+
+		private bool IsHightlightTimerDone() {
+			return(Time.time >= HighlightTimer);
+		}
 		private bool IsWordFound() {
 			if( Input.GetMouseButtonUp(0) ) {
 				Vector3 mouseClickPos = Input.mousePosition;
@@ -222,14 +239,18 @@ namespace WordWrap {
 				Letter currentLetterProperties = myWord[i].transform.GetComponent<Letter>();
 				Vector3 pos = new Vector3(currentXPos, -GRID_SPACING * (i - offset), 0);
 				currentLetterProperties.SetDestination(pos);
-				currentLetterProperties.SetBaseColor((int)GameColors.WORD);
+				if(currentLetterProperties.GetRandom()) {
+					currentLetterProperties.SetBaseColor((int)GameColors.RANDOM_WORD);
+				} else {
+					currentLetterProperties.SetBaseColor((int)GameColors.WORD);
+				}
 			}
 
 			if(letterProperties.GetIsInFocus()) {
 				return GetSelectedWord(letter);
 			} else {
 				letterProperties.SetInFocus();
-				letterProperties.SetBaseColor((int)GameColors.WORD_FOCUS);
+				ColorBlock(letterProperties);
 			}
 			return false;
 		}
@@ -254,7 +275,11 @@ namespace WordWrap {
 				}
 				Debug.Assert(selectedLetter != null, $"Word {WordStringsInPlay[i]} does not have a selected letter!");
 				SelectedWordString += selectedLetter.GetLetter().ToString();
-				selectedLetter.SetBaseColor((int)GameColors.WORD_FOCUS);
+				if(selectedLetter.GetRandom()) {
+					selectedLetter.SetBaseColor((int)GameColors.RANDOM_WORD_FOCUS);
+				} else {
+					selectedLetter.SetBaseColor((int)GameColors.WORD_FOCUS);
+				}
 			}
 
 			if (DictionaryFull.SearchString(SelectedWordString) > 0) {
@@ -263,7 +288,7 @@ namespace WordWrap {
 					selectedWordLetterList[i].SetBaseColor((int)GameColors.TEXT_BLOCK_FOUND_WORD);
 				}
 				AllWordStringsFound.Add(SelectedWordString);
-				StartExplodeSelectedWords();
+				//StartExplodeSelectedWords();
 				return true;
 			}
 			return false;
