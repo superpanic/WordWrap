@@ -28,7 +28,7 @@ namespace WordWrap {
 		GameState gameState = GameState.PlayerLookingForWord;
 
 		public GameObject PrefabLetter;
-
+		public GameObject WordUsedNotification;
 		private DictionaryManager DictionaryFull;
 		private DictionaryManager DictionaryCommonWords;
 
@@ -48,6 +48,8 @@ namespace WordWrap {
 			DictionaryFull = new DictionaryManager(path:"Assets/Dictionaries/sorted_words.txt", low:3, high:MAX_COLS);
 			DictionaryCommonWords = new DictionaryManager(path:"Assets/Dictionaries/common_words_eu_com.txt", low:3, high:MAX_ROWS);
 			Debug.Assert(PrefabLetter, "A prefab letter has not been assigned!");
+			Debug.Assert(WordUsedNotification, "Word used notification has not been assigned!");
+			WordUsedNotification.SetActive(false);
 			gameState = GameState.GameSetup;
 		}
 
