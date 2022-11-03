@@ -33,7 +33,7 @@ namespace WordWrap {
 		private DictionaryManager DictionaryCommonWords;
 
 		private float HighlightTimer;
-		private const float HightlightTimerDelay = 1.0f;
+		private const float HightlightTimerDelay = 0.5f;
 
 		private List<List<GameObject>> WordObjectsInPlay = new List<List<GameObject>>();
 		private List<string>           WordStringsInPlay = new List<string>();
@@ -309,7 +309,7 @@ namespace WordWrap {
 		}
 
 		private GameObject AddLetterToScene(char letter, int col, int letterIndex, int wordLength) {
-			Vector3 outside = new Vector3(OUTSIDE_RIGHT_X_POS, (float)Rnd.Next(-5,5), 0f); // TODO: make the transition effect work in Z also
+			Vector3 outside = new Vector3(OUTSIDE_RIGHT_X_POS, (float)Rnd.Next(-5,5), -2.5f*col-0.1f*letterIndex);
 			Vector3 pos = new Vector3(CalculateXPos(column:col), CalculateYPos(wordLength:wordLength, letterIndex:letterIndex), 0f);
 			GameObject letterObject = Instantiate(PrefabLetter, outside, Quaternion.identity) as GameObject;
 			letterObject.GetComponent<Letter>().SetDestination(pos, 0.01f);

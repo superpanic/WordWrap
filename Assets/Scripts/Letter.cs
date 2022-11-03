@@ -20,7 +20,8 @@ namespace WordWrap {
 	public class Letter : MonoBehaviour {
 		private Text UIText;
 		public int LetterIndex;
-		private float MotionSpeed = 0.1f;
+		private float MotionSpeed = 0.03f;
+
 		private Vector3 ScaleDefault;
 		private float ScaleMultiplier = 1.0f;
 		private List<GameObject> MyWord;
@@ -56,9 +57,11 @@ namespace WordWrap {
 					} else {
 						float x = Mathf.Lerp(transform.position.x, Destination.x, MotionSpeed);
 						float y = Mathf.Lerp(transform.position.y, Destination.y, MotionSpeed);
+						float z = Mathf.Lerp(transform.position.z, Destination.z, MotionSpeed);
 						Vector3 p = transform.position;
-						p.y = y;
 						p.x = x;
+						p.y = y;
+						p.z = z;
 						transform.position = p;
 					}
 				}
