@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731713, g: 0.13414736, b: 0.121078536, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731689, g: 0.13414702, b: 0.1210784, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -198,30 +198,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 6927204851079917844, guid: 1e077e4c2516947daa83c77e2b5b4e0e, type: 3}
-      propertyPath: colors.Array.data[5].b
-      value: 0.6037736
-      objectReference: {fileID: 0}
-    - target: {fileID: 6927204851079917844, guid: 1e077e4c2516947daa83c77e2b5b4e0e, type: 3}
-      propertyPath: colors.Array.data[5].g
-      value: 0.6037736
-      objectReference: {fileID: 0}
-    - target: {fileID: 6927204851079917844, guid: 1e077e4c2516947daa83c77e2b5b4e0e, type: 3}
-      propertyPath: colors.Array.data[5].r
-      value: 0.6037736
-      objectReference: {fileID: 0}
-    - target: {fileID: 6927204851079917844, guid: 1e077e4c2516947daa83c77e2b5b4e0e, type: 3}
-      propertyPath: colors.Array.data[6].b
-      value: 0.4528302
-      objectReference: {fileID: 0}
-    - target: {fileID: 6927204851079917844, guid: 1e077e4c2516947daa83c77e2b5b4e0e, type: 3}
-      propertyPath: colors.Array.data[6].g
-      value: 0.4528302
-      objectReference: {fileID: 0}
-    - target: {fileID: 6927204851079917844, guid: 1e077e4c2516947daa83c77e2b5b4e0e, type: 3}
-      propertyPath: colors.Array.data[6].r
-      value: 0.4528302
-      objectReference: {fileID: 0}
     - target: {fileID: 6927204851079917845, guid: 1e077e4c2516947daa83c77e2b5b4e0e, type: 3}
       propertyPath: m_Name
       value: Palette
@@ -697,7 +673,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   palette: {fileID: 6927204851079917844, guid: 1e077e4c2516947daa83c77e2b5b4e0e, type: 3}
-  colorIndex: 7
+  colorIndex: 8
   intensity: 1
   recursive: 0
 --- !u!114 &1779439252
@@ -713,7 +689,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 0.81960785, g: 0.040516403, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

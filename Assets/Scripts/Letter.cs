@@ -14,7 +14,8 @@ namespace WordWrap {
 		WORD_FOCUS,
 		RANDOM_WORD,
 		RANDOM_WORD_FOCUS,
-		TEXT_BLOCK_FOUND_WORD
+		SUCCESS_GREEN,
+		FAILURE_RED
 	}
 
 	public class Letter : MonoBehaviour {

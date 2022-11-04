@@ -285,14 +285,22 @@ namespace WordWrap {
 			}
 
 			if (DictionaryFull.SearchString(SelectedWordString) > 0) {
+				if(IsWordAlreadyUsed(SelectedWordString)) {
+					WordUsedNotification.SetActive(true);
+					return false;
+				}
 				for (int i = 0; i < selectedWordLetterList.Count; i++) {
 					selectedWordLetterList[i].SetIsSelected(true);
-					selectedWordLetterList[i].SetBaseColor((int)GameColors.TEXT_BLOCK_FOUND_WORD);
+					selectedWordLetterList[i].SetBaseColor((int)GameColors.SUCCESS_GREEN);
 				}
 				AllWordStringsFound.Add(SelectedWordString);
-				//StartExplodeSelectedWords();
 				return true;
 			}
+			return false;
+		}
+
+		private bool IsWordAlreadyUsed(string word) {
+			if (AllWordStringsFound.Contains(word)) return true;
 			return false;
 		}
 
