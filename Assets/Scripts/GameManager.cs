@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using TMPro;
 
 namespace WordWrap {
 
 	public enum GameState {
 		GameSetup,
 		PlayerLookingForWord,
+		WordFound,
 		HighlightDelay,
 		CollectFoundWord,
 		StartMoveAllWordsToLeft,
@@ -25,15 +27,20 @@ namespace WordWrap {
 
 		private System.Random Rnd;
 
-		GameState gameState = GameState.PlayerLookingForWord;
+		GameState CurrentGameState;
 
 		public GameObject PrefabLetter;
 		public GameObject WordUsedNotification;
+		public ScoreCounter ScoreDisplay;
+		public TMP_Text WordCountDisplay;
+
 		private DictionaryManager DictionaryFull;
 		private DictionaryManager DictionaryCommonWords;
 
 		private float HighlightTimer;
 		private const float HightlightTimerDelay = 0.5f;
+
+		private int WordCount;
 
 		private List<List<GameObject>> WordObjectsInPlay = new List<List<GameObject>>();
 		private List<string>           WordStringsInPlay = new List<string>();
@@ -46,56 +53,71 @@ namespace WordWrap {
 		void Start() {
 			if(Rnd==null) Rnd = new System.Random();
 			DictionaryFull = new DictionaryManager(path:"Assets/Dictionaries/sorted_words.txt", low:3, high:MAX_COLS);
-			DictionaryCommonWords = new DictionaryManager(path:"Assets/Dictionaries/common_words_eu_com.txt", low:3, high:MAX_ROWS);
+//			DictionaryCommonWords = new DictionaryManager(path:"Assets/Dictionaries/common_words_eu_com.txt", low:3, high:MAX_ROWS);
+			DictionaryCommonWords = new DictionaryManager(path: "Assets/Dictionaries/animals.txt", low: 3, high: MAX_ROWS);
 			Debug.Assert(PrefabLetter, "A prefab letter has not been assigned!");
 			Debug.Assert(WordUsedNotification, "Word used notification has not been assigned!");
+			Debug.Assert(ScoreDisplay, "Score display not assigned!");
 			WordUsedNotification.SetActive(false);
-			gameState = GameState.GameSetup;
+			CurrentGameState = GameState.GameSetup;
+			Debug.Assert(WordCountDisplay, "WordCountDisplay not assigned!");
+			WordCount = 0;
+			WordCountDisplay.text = WordCount.ToString();
 		}
 
 		void Update() {
-			switch(gameState) {
+			switch(CurrentGameState) {
 				case GameState.GameSetup:
 					IsNewWordsAddedToGrid();
-					gameState = GameState.PlayerLookingForWord;
+					ScoreDisplay.SetScore(0);
+					CurrentGameState = GameState.PlayerLookingForWord;
 					break;
 
 				case GameState.PlayerLookingForWord:
-					if(IsWordFound()) {
+					if(IsWordFound()) CurrentGameState = GameState.WordFound;
+					break;
+
+				case GameState.WordFound:
+					if(IsWordAlreadyUsed(SelectedWordString)) {
+						WordUsedNotification.SetActive(true);
+						CurrentGameState = GameState.PlayerLookingForWord;
+					} else {
+						WordFound();
 						HighlightTimer = Time.time + HightlightTimerDelay;
-						gameState = GameState.HighlightDelay;
+						CurrentGameState = GameState.HighlightDelay;
 					}
 					break;
 
 				case GameState.HighlightDelay:
 					if(IsHightlightTimerDone()) {
 						StartExplodeSelectedWords();
-						gameState = GameState.CollectFoundWord;
+						ScoreDisplay.AddScore(SelectedWordString);
+						CurrentGameState = GameState.CollectFoundWord;
 					}
 					break;
 
 				case GameState.CollectFoundWord:
 					if(IsWordFoundCollected()) {
 						RemoveCollectedWords();
-						gameState = GameState.StartMoveAllWordsToLeft;
+						CurrentGameState = GameState.StartMoveAllWordsToLeft;
 					}
 					break;
 
 				case GameState.StartMoveAllWordsToLeft:
 					if(StartedMovingWordsToLeft()) {
-						gameState = GameState.MovingAllWordsToLeft;
+						CurrentGameState = GameState.MovingAllWordsToLeft;
 					}
 					break;
 
 				case GameState.MovingAllWordsToLeft:
 					if(HasAllWordsMovedToLeft()) {
-						gameState = GameState.AddNewWordsToGrid;
+						CurrentGameState = GameState.AddNewWordsToGrid;
 					}
 					break;
 				
 				case GameState.AddNewWordsToGrid:
 					if(IsNewWordsAddedToGrid()) {
-						gameState = GameState.PlayerLookingForWord;
+						CurrentGameState = GameState.PlayerLookingForWord;
 					}
 					break;
 			}
@@ -208,10 +230,10 @@ namespace WordWrap {
 			SelectedWordLetters.Clear();
 		}
 
-
 		private bool IsHightlightTimerDone() {
 			return(Time.time >= HighlightTimer);
 		}
+
 		private bool IsWordFound() {
 			if( Input.GetMouseButtonUp(0) ) {
 				Vector3 mouseClickPos = Input.mousePosition;
@@ -228,7 +250,6 @@ namespace WordWrap {
 		}
 
 		private bool MoveWordToCenterLetter(Transform letter) {
-			//ClearFoundWord();
 			SelectedWordLetters.Clear();
 			Letter letterProperties = letter.GetComponent<Letter>();
 
@@ -284,19 +305,21 @@ namespace WordWrap {
 				}
 			}
 
-			if (DictionaryFull.SearchString(SelectedWordString) > 0) {
-				if(IsWordAlreadyUsed(SelectedWordString)) {
-					WordUsedNotification.SetActive(true);
-					return false;
-				}
-				for (int i = 0; i < selectedWordLetterList.Count; i++) {
-					selectedWordLetterList[i].SetIsSelected(true);
-					selectedWordLetterList[i].SetBaseColor((int)GameColors.SUCCESS_GREEN);
-				}
-				AllWordStringsFound.Add(SelectedWordString);
+			if (DictionaryFull.SearchString(SelectedWordString) > 0)
 				return true;
-			}
+
 			return false;
+		}
+
+		private void WordFound() {
+			for (int i = 0; i < SelectedWordLetters.Count; i++) {
+				Letter le = SelectedWordLetters[i].GetComponent<Letter>();
+				le.SetIsSelected(true);
+				le.SetBaseColor((int)GameColors.SUCCESS_GREEN);
+			}
+			AllWordStringsFound.Add(SelectedWordString);
+			WordCount = WordCount + 1;
+			WordCountDisplay.text = WordCount.ToString();
 		}
 
 		private bool IsWordAlreadyUsed(string word) {
@@ -332,9 +355,12 @@ namespace WordWrap {
 		}
 
 		private static void SetLetter(char c, GameObject letterObject) {
-			Transform transform = letterObject.transform.Find("letter");
-			Text textObject = transform.GetComponent<Text>();
-			textObject.text = "" + c;
+			//			Transform transform = letterObject.transform.Find("letter");
+			//			Text textObject = transform.GetComponent<Text>();
+			//			textObject.text = "" + c;
+			Letter l = letterObject.GetComponent<Letter>();
+			Debug.Log(l);
+			l.SetLetter(c);
 		}
 
 		private void StartExplodeSelectedWords() {
@@ -363,5 +389,7 @@ namespace WordWrap {
 			int offset = wordLength / 2;
 			return -GRID_SPACING * (letterIndex - offset);
 		}
+
+
 	}
 }

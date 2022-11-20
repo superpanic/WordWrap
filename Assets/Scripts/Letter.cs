@@ -19,7 +19,8 @@ namespace WordWrap {
 	}
 
 	public class Letter : MonoBehaviour {
-		private Text UIText;
+		private Text LetterText;
+		private Text MultiText;
 		public int LetterIndex;
 		private float MotionSpeed = 0.03f;
 
@@ -35,9 +36,15 @@ namespace WordWrap {
 
 		private int ColorListLength;
 
-		void Start() {
-			Transform transform = this.transform.Find("letter");
-			UIText = transform.GetComponent<Text>();
+		void Awake() { // LetterText and MultiText needs to be set before Start() event
+			Transform letterTransform = this.transform.Find("letter");
+			LetterText = letterTransform.GetComponent<Text>();
+
+			Transform multiTransform = this.transform.Find("multiplier");
+			MultiText = multiTransform.GetComponent<Text>();
+		}
+
+		private void Start() {
 			ScaleDefault = this.transform.localScale;
 			ColorListLength = Enum.GetNames(typeof(GameColors)).Length;
 		}
@@ -103,10 +110,29 @@ namespace WordWrap {
 		}
 
 		public void SetLetter(char c) {
-			UIText.text = "" + c;
+			LetterText.text = "" + c;
+			SetMultiplierText(c);
 		}
+
+		private void SetMultiplierText(char c) {
+			int val = 1;
+			int index = Array.IndexOf(Common.Letters, c);
+			if (index != -1 && index < Common.Values.Length)
+			{
+				val = Common.Values[index];
+			}
+			if (val <= 1)
+			{
+				MultiText.text = "";
+			}
+			else
+			{
+				MultiText.text = val.ToString();
+			}
+		}
+
 		public char GetLetter() {
-			return UIText.text[0];
+			return LetterText.text[0];
 		}
 
 		public bool GetIsMoving() {

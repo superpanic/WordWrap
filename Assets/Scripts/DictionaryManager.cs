@@ -52,6 +52,14 @@ namespace WordWrap {
 			return RootNode.ReadWord(s); // 0 == not found
 		}
 
+		public bool CheckWordList(string[] sa) {
+			bool result = true;
+			foreach(string s in sa) {
+				if (SearchString(s) == 0) return false; 
+			}
+			return result;
+		}
+
 		public void PrintNRandomWords(int n) {
 			if (RootNode == null) return;
 			string[] wordArr = new string[n];
