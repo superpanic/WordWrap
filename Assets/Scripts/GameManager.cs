@@ -53,8 +53,8 @@ namespace WordWrap {
 		void Start() {
 			if(Rnd==null) Rnd = new System.Random();
 			DictionaryFull = new DictionaryManager(path:"Assets/Dictionaries/sorted_words.txt", low:3, high:MAX_COLS);
-//			DictionaryCommonWords = new DictionaryManager(path:"Assets/Dictionaries/common_words_eu_com.txt", low:3, high:MAX_ROWS);
-			DictionaryCommonWords = new DictionaryManager(path: "Assets/Dictionaries/animals.txt", low: 3, high: MAX_ROWS);
+			DictionaryCommonWords = new DictionaryManager(path:"Assets/Dictionaries/common_words_eu_com.txt", low:3, high:MAX_ROWS);
+//			DictionaryCommonWords = new DictionaryManager(path: "Assets/Dictionaries/animals.txt", low: 3, high: MAX_ROWS);
 			Debug.Assert(PrefabLetter, "A prefab letter has not been assigned!");
 			Debug.Assert(WordUsedNotification, "Word used notification has not been assigned!");
 			Debug.Assert(ScoreDisplay, "Score display not assigned!");
@@ -131,7 +131,7 @@ namespace WordWrap {
 					Letter l = go.GetComponent<Letter>();
 					Vector3 destination = new Vector3(CalculateXPos(column), go.transform.position.y, 0f);
 					delayCounter++;
-					l.SetDestination(destination, delayCounter*0.01f);
+					l.SetDestinationTarget(destination, delayCounter*0.01f);
 				}
 				column++;
 			}
@@ -242,27 +242,34 @@ namespace WordWrap {
 				if( Physics.Raycast(ray, out mouseClickHit) ) {
 					if(mouseClickHit.collider.tag == "Letter") {
 						Transform letter = mouseClickHit.transform;
-						return MoveWordToCenterLetter(letter);
+						return MoveWordAndCenterLetter(letter);
 					}
 				} 
 			}
 			return false;
 		}
 
-		private bool MoveWordToCenterLetter(Transform letter) {
+		private bool MoveWordAndCenterLetter(Transform letter) {
 			SelectedWordLetters.Clear();
 			Letter letterProperties = letter.GetComponent<Letter>();
 
 			List<GameObject> myWord = letterProperties.GetMyWord();
 			int wordLength = myWord.Count;
-			int letterIndex = letterProperties.LetterIndex;
 			float currentXPos = letter.transform.position.x;
-			int offset = letterIndex;
+			float rot;
+			int letterIndex = letterProperties.LetterIndex;
 			for (int i = 0; i < wordLength; i++) {
 				Letter currentLetterProperties = myWord[i].transform.GetComponent<Letter>();
-				Vector3 pos = new Vector3(currentXPos, -GRID_SPACING * (i - offset), 0);
-				currentLetterProperties.SetDestination(pos);
-				if(currentLetterProperties.GetRandom()) {
+
+				Vector3 pos = new Vector3(currentXPos, -GRID_SPACING * (i - letterIndex), 0f);
+				currentLetterProperties.SetDestinationTarget(pos);
+
+				rot = 0f;
+				if (i-letterIndex == 3 && i < wordLength-1) rot = 30f;
+				if (i-letterIndex == -3 && i > 0) rot = -30f;
+				currentLetterProperties.SetRotationTargetX(rot);
+				
+				if (currentLetterProperties.GetRandom()) {
 					currentLetterProperties.SetBaseColor((int)GameColors.RANDOM_WORD);
 				} else {
 					currentLetterProperties.SetBaseColor((int)GameColors.WORD);
@@ -343,7 +350,7 @@ namespace WordWrap {
 			Vector3 outside = new Vector3(OUTSIDE_RIGHT_X_POS, (float)Rnd.Next(-5,5), -2.5f*col-0.1f*letterIndex);
 			Vector3 pos = new Vector3(CalculateXPos(column:col), CalculateYPos(wordLength:wordLength, letterIndex:letterIndex), 0f);
 			GameObject letterObject = Instantiate(PrefabLetter, outside, Quaternion.identity) as GameObject;
-			letterObject.GetComponent<Letter>().SetDestination(pos, 0.01f);
+			letterObject.GetComponent<Letter>().SetDestinationTarget(pos, 0.01f);
 			InitLetterObject(letterIndex, letterObject);
 			SetLetter(letter, letterObject);
 			return letterObject;
@@ -355,11 +362,7 @@ namespace WordWrap {
 		}
 
 		private static void SetLetter(char c, GameObject letterObject) {
-			//			Transform transform = letterObject.transform.Find("letter");
-			//			Text textObject = transform.GetComponent<Text>();
-			//			textObject.text = "" + c;
 			Letter l = letterObject.GetComponent<Letter>();
-			Debug.Log(l);
 			l.SetLetter(c);
 		}
 
@@ -376,7 +379,7 @@ namespace WordWrap {
 					float x = p.x - distance - p.x;
 					float y = p.y + p.y * spread;
 					Vector3 v = new Vector3(x,y,p.z);
-					l.SetDestination(v);
+					l.SetDestinationTarget(v);
 				}
 			}
 		}

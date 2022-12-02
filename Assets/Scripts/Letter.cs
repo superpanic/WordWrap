@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEditor.FilePathAttribute;
 
 namespace WordWrap {
 
@@ -22,14 +23,24 @@ namespace WordWrap {
 		private Text LetterText;
 		private Text MultiText;
 		public int LetterIndex;
-		private float MotionSpeed = 0.03f;
+
+		private float RotationTimeStamp = 1.0f;
+		private readonly float RotationDuration = 0.5f;
+		private float RotationStartAngleX;
+
+		private float MotionTimeStamp;
+		private readonly float MotionDuration = 1.0f;
+		private Vector3 MotionStartPointXYZ;
+		private float MotionDistance;
 
 		private Vector3 ScaleDefault;
 		private float ScaleMultiplier = 1.0f;
 		private List<GameObject> MyWord;
-		private Vector3 Destination;
-		private float moveDelay = 0f;
+		private Vector3 MotionTarget;
+		private float RotationTargetX;
+		private float MoveDelay = 0f;
 		private bool IsMoving = false;
+		private bool IsRotating = false;
 		private bool IsInFocus = false;
 		private bool IsSelected = false;
 		private bool IsRandomWord = false;
@@ -39,9 +50,11 @@ namespace WordWrap {
 		void Awake() { // LetterText and MultiText needs to be set before Start() event
 			Transform letterTransform = this.transform.Find("letter");
 			LetterText = letterTransform.GetComponent<Text>();
+			Debug.Assert(LetterText, "Letter text object is not assigned!");
 
 			Transform multiTransform = this.transform.Find("multiplier");
 			MultiText = multiTransform.GetComponent<Text>();
+			Debug.Assert(MultiText, "Multiplier text object is not assigned!");
 		}
 
 		private void Start() {
@@ -50,45 +63,61 @@ namespace WordWrap {
 		}
 
 		void Update() {
-			MoveXY();
+			MoveToTargetPos();
+			RotateToTargetX();
 		}
 
-		public void MoveXY() {
+		public void MoveToTargetPos() {
 			if(IsMoving) {
-				Vector3 delta = transform.position - Destination;
-				if(delta.magnitude < 0.01) {
-					transform.position = Destination;
+				float timeDiff = Time.time - MotionTimeStamp;
+				float timePart = timeDiff / MotionDuration;
+				if (timeDiff >= 1.0f) {
 					IsMoving = false;
+					transform.position = MotionTarget;
 				} else {
-					if(moveDelay > 0f) {
-						moveDelay = Math.Max(0f, moveDelay-Time.deltaTime);
+					if(MoveDelay > 0f) { // fix move delay!
+						MoveDelay = Math.Max(0f, MoveDelay-Time.deltaTime);
 					} else {
-						float x = Mathf.Lerp(transform.position.x, Destination.x, MotionSpeed);
-						float y = Mathf.Lerp(transform.position.y, Destination.y, MotionSpeed);
-						float z = Mathf.Lerp(transform.position.z, Destination.z, MotionSpeed);
-						Vector3 p = transform.position;
-						p.x = x;
-						p.y = y;
-						p.z = z;
-						transform.position = p;
+						Vector3 moveTo = Vector3.Lerp(MotionStartPointXYZ, MotionTarget, timePart);
+						transform.position = moveTo;
 					}
 				}
 			}
 		}
 
-		public void SetScale(float scaleMultiplier) {
-			ScaleMultiplier = scaleMultiplier;
-			Vector3 sc = this.transform.localScale;
-			sc.x = ScaleDefault.x * ScaleMultiplier;
-			sc.y = ScaleDefault.y * ScaleMultiplier;
-			this.transform.localScale = sc;
+		public void SetDestinationTarget(Vector3 destination, float delay = 0f) {
+			if(destination != transform.position) {
+				MotionTarget = destination;
+				MotionStartPointXYZ = transform.position;
+				MotionDistance = Vector3.Distance(MotionStartPointXYZ, MotionTarget);
+				MoveDelay = delay;
+				MotionTimeStamp = Time.time;
+				IsMoving = true;
+			}
 		}
 
-		public void SetDestination(Vector3 destination, float delay = 0f) {
-			if(destination != transform.position) {
-				Destination = destination;
-				moveDelay = delay;
-				IsMoving = true;
+		public void RotateToTargetX() {
+			if (IsRotating) {
+				float timeDiff = Time.time - RotationTimeStamp;
+				float timePart = timeDiff / RotationDuration;
+				Vector3 r = transform.localEulerAngles;
+				if (timePart >= 1.0f) {
+					IsRotating = false;
+					r.x = RotationTargetX;
+				} else {
+					float rot = Mathf.LerpAngle(RotationStartAngleX, RotationTargetX, timePart);
+					r.x = rot;
+				}
+				transform.localEulerAngles = r;
+			}
+		}
+
+		public void SetRotationTargetX(float rotationTargetX) {
+			if(rotationTargetX != transform.localEulerAngles.x) {
+				RotationTargetX = rotationTargetX;
+				RotationStartAngleX = transform.localEulerAngles.x;
+				RotationTimeStamp = Time.time;
+				IsRotating = true;
 			}
 		}
 
@@ -117,16 +146,12 @@ namespace WordWrap {
 		private void SetMultiplierText(char c) {
 			int val = 1;
 			int index = Array.IndexOf(Common.Letters, c);
-			if (index != -1 && index < Common.Values.Length)
-			{
+			if (index != -1 && index < Common.Values.Length) {
 				val = Common.Values[index];
 			}
-			if (val <= 1)
-			{
+			if (val <= 1) {
 				MultiText.text = "";
-			}
-			else
-			{
+			} else {
 				MultiText.text = val.ToString();
 			}
 		}
