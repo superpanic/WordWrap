@@ -289,7 +289,9 @@ namespace WordWrap {
 			for (int i = 0; i < wordLength; i++) {
 				Letter currentLetterProperties = myWord[i].transform.GetComponent<Letter>();
 
-				Vector3 pos = new Vector3(currentXPos, -GRID_SPACING * (i - centerIndex), 0f);
+				float currentYPos = -GRID_SPACING * (i - centerIndex);
+
+				Vector3 pos = new Vector3(currentXPos, currentYPos, 0f);
 				currentLetterProperties.SetDestinationTarget(pos);
 
 				rot = 0f;
