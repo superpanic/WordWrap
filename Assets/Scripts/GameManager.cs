@@ -25,6 +25,8 @@ namespace WordWrap {
 		public const float GRID_SPACING = 1.1f;
 		public const byte GRID_COL_OFFSET = 4;
 
+		public const float EDGE_ROTATION_ANGLE = 15f;
+
 		private System.Random Rnd;
 
 		GameState CurrentGameState;
@@ -249,6 +251,32 @@ namespace WordWrap {
 			return false;
 		}
 
+		private bool ApplyRotationToEdgeLetter(int centerIndex, int wordLength, int index) {
+			if (index == centerIndex) return false; // center block itself never needs to rotate
+			int centerOffset = centerIndex - index;
+			if (centerOffset < 0) { // bottom edge
+				centerOffset = -centerOffset;
+				if (IsAtEdgeButNotLastChar(wordLength, index, centerOffset)) return true;
+				if (IsOutsideEdge(centerOffset)) return true;
+			} else { // top edge
+				if (IsAtEdgeButNotFirstChar(index, centerOffset)) return true;
+				if (IsOutsideEdge(centerOffset)) return true;
+			}
+			return false;
+
+			static bool IsAtEdgeButNotLastChar(int wordLength, int index, int centerOffset) {
+				return centerOffset == 3 && wordLength - 1 > index;
+			}
+
+			static bool IsOutsideEdge(int centerOffset) {
+				return centerOffset > 3;
+			}
+
+			static bool IsAtEdgeButNotFirstChar(int index, int centerOffset) {
+				return centerOffset == 3 && index > 0;
+			}
+		}
+
 		private bool MoveWordAndCenterLetter(Transform letter) {
 			SelectedWordLetters.Clear();
 			Letter letterProperties = letter.GetComponent<Letter>();
@@ -257,16 +285,18 @@ namespace WordWrap {
 			int wordLength = myWord.Count;
 			float currentXPos = letter.transform.position.x;
 			float rot;
-			int letterIndex = letterProperties.LetterIndex;
+			int centerIndex = letterProperties.LetterIndex;
 			for (int i = 0; i < wordLength; i++) {
 				Letter currentLetterProperties = myWord[i].transform.GetComponent<Letter>();
 
-				Vector3 pos = new Vector3(currentXPos, -GRID_SPACING * (i - letterIndex), 0f);
+				Vector3 pos = new Vector3(currentXPos, -GRID_SPACING * (i - centerIndex), 0f);
 				currentLetterProperties.SetDestinationTarget(pos);
 
 				rot = 0f;
-				if (i-letterIndex == 3 && i < wordLength-1) rot = 30f;
-				if (i-letterIndex == -3 && i > 0) rot = -30f;
+				if (ApplyRotationToEdgeLetter(centerIndex, wordLength, i)) {
+					if (i < centerIndex) rot = EDGE_ROTATION_ANGLE;
+					else rot = -EDGE_ROTATION_ANGLE;
+				}
 				currentLetterProperties.SetRotationTargetX(rot);
 				
 				if (currentLetterProperties.GetRandom()) {
@@ -379,7 +409,7 @@ namespace WordWrap {
 					float x = p.x - distance - p.x;
 					float y = p.y + p.y * spread;
 					Vector3 v = new Vector3(x,y,p.z);
-					l.SetDestinationTarget(v);
+					l.SetDestinationTarget(v, i*0.1f);
 				}
 			}
 		}
