@@ -25,12 +25,13 @@ namespace WordWrap {
 		public int LetterIndex;
 
 		private float RotationTimeStamp = 1.0f;
-		private readonly float RotationDuration = 0.5f;
+		private readonly float RotationDuration = 0.3f;
 		private float RotationStartAngleX;
 
 		private float MotionTimeStamp;
-		private readonly float MotionDuration = 1.0f;
-		private Vector3 MotionStartPointXYZ;
+		private readonly float MotionDuration = 0.01f;
+		private float CurrentMotionDuration = 0f;
+		private Vector3 MotionStart;
 		private float MotionDistance;
 
 		private Vector3 ScaleDefault;
@@ -69,30 +70,20 @@ namespace WordWrap {
 
 		public void MoveToTargetPos() {
 			if(IsMoving) {
+				if (MoveDelay > 0f) {
+					MotionTimeStamp = Time.time; // update time stamp until it's time to move
+					MoveDelay = Math.Max(0f, MoveDelay - Time.deltaTime);
+					return;
+				}
 				float timeDiff = Time.time - MotionTimeStamp;
-				float timePart = timeDiff / MotionDuration;
-				if (timeDiff >= 1.0f) {
+				float timePart = timeDiff / CurrentMotionDuration;
+				if (timePart >= 1.0f) {
 					IsMoving = false;
 					transform.position = MotionTarget;
 				} else {
-					if(MoveDelay > 0f) { // fix move delay!
-						MoveDelay = Math.Max(0f, MoveDelay-Time.deltaTime);
-					} else {
-						Vector3 moveTo = Vector3.Lerp(MotionStartPointXYZ, MotionTarget, timePart);
-						transform.position = moveTo;
-					}
+					Vector3 moveTo = Vector3.Lerp(MotionStart, MotionTarget, Mathf.SmoothStep(0.0f, 1.0f, timePart));
+					transform.position = moveTo;
 				}
-			}
-		}
-
-		public void SetDestinationTarget(Vector3 destination, float delay = 0f) {
-			if(destination != transform.position) {
-				MotionTarget = destination;
-				MotionStartPointXYZ = transform.position;
-				MotionDistance = Vector3.Distance(MotionStartPointXYZ, MotionTarget);
-				MoveDelay = delay;
-				MotionTimeStamp = Time.time;
-				IsMoving = true;
 			}
 		}
 
@@ -109,6 +100,18 @@ namespace WordWrap {
 					r.x = rot;
 				}
 				transform.localEulerAngles = r;
+			}
+		}
+
+		public void SetDestinationTarget(Vector3 destination, float delay = 0f) {
+			if(destination != transform.position) {
+				MotionTarget = destination;
+				MotionStart = transform.position;
+				MotionDistance = Vector3.Distance(MotionStart, MotionTarget);
+				CurrentMotionDuration = 0.5f + MotionDistance * MotionDuration;
+				MoveDelay = delay;
+				MotionTimeStamp = Time.time;
+				IsMoving = true;
 			}
 		}
 
