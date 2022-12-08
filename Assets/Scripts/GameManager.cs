@@ -23,6 +23,7 @@ namespace WordWrap {
 		public const byte MAX_COLS = 9;
 		private const float OUTSIDE_RIGHT_X_POS = 7.0f;
 		public const float GRID_SPACING = 1.1f;
+		public const float EDGE_SPACING = 0.1f;
 		public const byte GRID_COL_OFFSET = 4;
 
 		public const float EDGE_ROTATION_ANGLE = 15f;
@@ -198,7 +199,7 @@ namespace WordWrap {
 		}
 
 		private void ColorBlock(Letter letterProperties) {
-			bool isRandomWord = letterProperties.GetRandom();
+			bool isRandomWord = letterProperties.IsRandom();
 			bool isLetterInFocus = letterProperties.GetIsInFocus();
 			if(isLetterInFocus) {
 				if(isRandomWord) {
@@ -251,7 +252,7 @@ namespace WordWrap {
 			return false;
 		}
 
-		private bool ApplyRotationToEdgeLetter(int centerIndex, int wordLength, int index) {
+		private bool IsLetterAtEdge(int centerIndex, int wordLength, int index) {
 			if (index == centerIndex) return false; // center block itself never needs to rotate
 			int centerOffset = centerIndex - index;
 			if (centerOffset < 0) { // bottom edge
@@ -289,19 +290,23 @@ namespace WordWrap {
 			for (int i = 0; i < wordLength; i++) {
 				Letter currentLetterProperties = myWord[i].transform.GetComponent<Letter>();
 
-				float currentYPos = -GRID_SPACING * (i - centerIndex);
-
+				// position
+				int offset = i - centerIndex;
+				int clampedOffset = Math.Clamp(offset, -3, 3);
+				float currentYPos = -GRID_SPACING * clampedOffset + EDGE_SPACING * (clampedOffset - offset);
 				Vector3 pos = new Vector3(currentXPos, currentYPos, 0f);
 				currentLetterProperties.SetDestinationTarget(pos);
 
+				// rotation
 				rot = 0f;
-				if (ApplyRotationToEdgeLetter(centerIndex, wordLength, i)) {
+				if (IsLetterAtEdge(centerIndex, wordLength, i)) {
 					if (i < centerIndex) rot = EDGE_ROTATION_ANGLE;
 					else rot = -EDGE_ROTATION_ANGLE;
 				}
 				currentLetterProperties.SetRotationTargetX(rot);
-				
-				if (currentLetterProperties.GetRandom()) {
+
+				// color
+				if (currentLetterProperties.IsRandom()) {
 					currentLetterProperties.SetBaseColor((int)GameColors.RANDOM_WORD);
 				} else {
 					currentLetterProperties.SetBaseColor((int)GameColors.WORD);
@@ -337,7 +342,7 @@ namespace WordWrap {
 				}
 				Debug.Assert(selectedLetter != null, $"Word {WordStringsInPlay[i]} does not have a selected letter!");
 				SelectedWordString += selectedLetter.GetLetter().ToString();
-				if(selectedLetter.GetRandom()) {
+				if(selectedLetter.IsRandom()) {
 					selectedLetter.SetBaseColor((int)GameColors.RANDOM_WORD_FOCUS);
 				} else {
 					selectedLetter.SetBaseColor((int)GameColors.WORD_FOCUS);

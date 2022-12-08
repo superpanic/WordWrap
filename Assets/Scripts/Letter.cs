@@ -34,8 +34,6 @@ namespace WordWrap {
 		private Vector3 MotionStart;
 		private float MotionDistance;
 
-		private Vector3 ScaleDefault;
-		private float ScaleMultiplier = 1.0f;
 		private List<GameObject> MyWord;
 		private Vector3 MotionTarget;
 		private float RotationTargetX;
@@ -59,7 +57,6 @@ namespace WordWrap {
 		}
 
 		private void Start() {
-			ScaleDefault = this.transform.localScale;
 			ColorListLength = Enum.GetNames(typeof(GameColors)).Length;
 		}
 
@@ -175,7 +172,7 @@ namespace WordWrap {
 			IsRandomWord = b;
 		}
 
-		public bool GetRandom() {
+		public bool IsRandom() {
 			return IsRandomWord;
 		}
 
