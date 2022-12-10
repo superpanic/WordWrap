@@ -36,6 +36,7 @@ namespace WordWrap {
 		public GameObject WordUsedNotification;
 		public ScoreCounter ScoreDisplay;
 		public TMP_Text WordCountDisplay;
+		public TMP_Text GameTimeDisplay;
 
 		private DictionaryManager DictionaryFull;
 		private DictionaryManager DictionaryCommonWords;
@@ -44,6 +45,9 @@ namespace WordWrap {
 		private const float HightlightTimerDelay = 0.5f;
 
 		private int WordCount;
+
+		private const float GAME_START_SECONDS = 20f;
+		private float GameTimer;
 
 		private List<List<GameObject>> WordObjectsInPlay = new List<List<GameObject>>();
 		private List<string>           WordStringsInPlay = new List<string>();
@@ -74,10 +78,12 @@ namespace WordWrap {
 					IsNewWordsAddedToGrid();
 					ScoreDisplay.SetScore(0);
 					CurrentGameState = GameState.PlayerLookingForWord;
+					GameTimer = Time.time + GAME_START_SECONDS;
 					break;
 
 				case GameState.PlayerLookingForWord:
 					if(IsWordFound()) CurrentGameState = GameState.WordFound;
+					UpdateGameTime();
 					break;
 
 				case GameState.WordFound:
@@ -95,6 +101,7 @@ namespace WordWrap {
 					if(IsHightlightTimerDone()) {
 						StartExplodeSelectedWords();
 						ScoreDisplay.AddScore(SelectedWordString);
+						AddTime(SelectedWordString);
 						CurrentGameState = GameState.CollectFoundWord;
 					}
 					break;
@@ -124,6 +131,14 @@ namespace WordWrap {
 					}
 					break;
 			}
+		}
+
+		private void UpdateGameTime() {
+			GameTimeDisplay.text = Mathf.Max(0f, GameTimer - Time.time).ToString("00.00");
+		}
+
+		private void AddTime(string s) {
+			GameTimer = GameTimer + s.Length * 10f;
 		}
 
 		private bool StartedMovingWordsToLeft() {
@@ -289,17 +304,20 @@ namespace WordWrap {
 			int centerIndex = letterProperties.LetterIndex;
 			for (int i = 0; i < wordLength; i++) {
 				Letter currentLetterProperties = myWord[i].transform.GetComponent<Letter>();
-
+				bool isLetterAtEdge = IsLetterAtEdge(centerIndex, wordLength, i);
 				// position
 				int offset = i - centerIndex;
 				int clampedOffset = Math.Clamp(offset, -3, 3);
 				float currentYPos = -GRID_SPACING * clampedOffset + EDGE_SPACING * (clampedOffset - offset);
-				Vector3 pos = new Vector3(currentXPos, currentYPos, 0f);
+				float currentZPos;
+				if (isLetterAtEdge) currentZPos = Math.Max(0, Math.Abs(offset) - 2) * EDGE_SPACING;
+				else currentZPos = 0f;
+				Vector3 pos = new Vector3(currentXPos, currentYPos, currentZPos);
 				currentLetterProperties.SetDestinationTarget(pos);
 
 				// rotation
 				rot = 0f;
-				if (IsLetterAtEdge(centerIndex, wordLength, i)) {
+				if (isLetterAtEdge) {
 					if (i < centerIndex) rot = EDGE_ROTATION_ANGLE;
 					else rot = -EDGE_ROTATION_ANGLE;
 				}
