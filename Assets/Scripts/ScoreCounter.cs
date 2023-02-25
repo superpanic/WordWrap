@@ -59,7 +59,7 @@ namespace WordWrap {
 		}
 
 		private int GetCharMultiplier(char c) {
-			int index = Array.IndexOf(Common.Letters, c);
+			int index = Array.IndexOf(Common.BonusLetters, c);
 			if (index == -1) return 1;
 			if (index >= Common.Values.Length) return 1;
 			return Common.Values[index];

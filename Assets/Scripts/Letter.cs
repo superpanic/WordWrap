@@ -22,7 +22,14 @@ namespace WordWrap {
 	public class Letter : MonoBehaviour {
 		private Text LetterText;
 		private Text MultiText;
+		private Image LetterImage;
 		public int LetterIndex;
+		public bool UsePngArtwork;
+
+		private char CurrentLetter;
+
+		public char[] Letters;
+		public Sprite[] LetterSprites;
 
 		private float RotationTimeStamp = 1.0f;
 		private readonly float RotationDuration = 0.3f;
@@ -46,14 +53,23 @@ namespace WordWrap {
 
 		private int ColorListLength;
 
+
 		void Awake() { // LetterText and MultiText needs to be set before Start() event
 			Transform letterTransform = this.transform.Find("letter");
 			LetterText = letterTransform.GetComponent<Text>();
 			Debug.Assert(LetterText, "Letter text object is not assigned!");
+			letterTransform.gameObject.SetActive(!UsePngArtwork); // hide if using png artwork
 
 			Transform multiTransform = this.transform.Find("multiplier");
 			MultiText = multiTransform.GetComponent<Text>();
 			Debug.Assert(MultiText, "Multiplier text object is not assigned!");
+
+			Transform letterImageTransform = this.transform.Find("letter image");
+			LetterImage = letterImageTransform.GetComponent<Image>();
+			Debug.Assert(LetterImage, "Letter iamge object is not assigned!");
+			letterImageTransform.gameObject.SetActive(UsePngArtwork); // hide if using text object
+
+			CurrentLetter = 'A';
 		}
 
 		private void Start() {
@@ -139,13 +155,21 @@ namespace WordWrap {
 		}
 
 		public void SetLetter(char c) {
-			LetterText.text = "" + c;
-			SetMultiplierText(c);
+			CurrentLetter = c;
+			if (UsePngArtwork) {
+				int i = Array.IndexOf(Letters, Char.ToUpper(CurrentLetter));
+				Debug.Assert(i > -1, "Letter not found in char array.");
+				Sprite sp = LetterSprites[i];
+				LetterImage.sprite = sp;
+			} else {
+				LetterText.text = "" + CurrentLetter;
+			}
+			SetMultiplierText(CurrentLetter);
 		}
 
 		private void SetMultiplierText(char c) {
 			int val = 1;
-			int index = Array.IndexOf(Common.Letters, c);
+			int index = Array.IndexOf(Common.BonusLetters, c);
 			if (index != -1 && index < Common.Values.Length) {
 				val = Common.Values[index];
 			}
@@ -157,7 +181,7 @@ namespace WordWrap {
 		}
 
 		public char GetLetter() {
-			return LetterText.text[0];
+			return CurrentLetter;
 		}
 
 		public bool GetIsMoving() {

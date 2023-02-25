@@ -82,7 +82,10 @@ namespace WordWrap {
 					break;
 
 				case GameState.PlayerLookingForWord:
-					if(IsWordFound()) CurrentGameState = GameState.WordFound;
+					if (IsWordFound()) {
+						CurrentGameState = GameState.WordFound;
+						Debug.Log($"Word found: {SelectedWordString}");
+					}
 					UpdateGameTime();
 					break;
 
