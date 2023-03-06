@@ -38,6 +38,8 @@ namespace WordWrap {
 		public TMP_Text WordCountDisplay;
 		public TMP_Text GameTimeDisplay;
 
+		private Transform LastTouchedLetter; // used for highlighting letters at touch (mouse down) and not release (mouse up)
+
 		private DictionaryManager DictionaryFull;
 		private DictionaryManager DictionaryCommonWords;
 
@@ -256,18 +258,53 @@ namespace WordWrap {
 		}
 
 		private bool IsWordFound() {
-			if( Input.GetMouseButtonUp(0) ) {
-				Vector3 mouseClickPos = Input.mousePosition;
-				Ray ray = Camera.main.ScreenPointToRay(mouseClickPos);
+			bool found = false;
+			if(Input.GetMouseButtonDown(0)) {
+				Ray ray = TryRayCastAtMousePosition();
 				RaycastHit mouseClickHit;
-				if( Physics.Raycast(ray, out mouseClickHit) ) {
-					if(mouseClickHit.collider.tag == "Letter") {
-						Transform letter = mouseClickHit.transform;
-						return MoveWordAndCenterLetter(letter);
+				if (Physics.Raycast(ray, out mouseClickHit)) {
+					if (mouseClickHit.collider.tag == "Letter") {
+						Transform hitLetter = mouseClickHit.transform;
+						LastTouchedLetter = hitLetter;
+						Letter currentLetterProperties = hitLetter.GetComponent<Letter>();
+						if (currentLetterProperties.IsRandom()) {
+							currentLetterProperties.SetBaseColor((int)GameColors.RANDOM_WORD_FOCUS);
+						} else {
+							currentLetterProperties.SetBaseColor((int)GameColors.WORD_FOCUS);
+						}
 					}
-				} 
+				}
 			}
-			return false;
+			if(Input.GetMouseButtonUp(0) && LastTouchedLetter) {
+				Ray ray = TryRayCastAtMousePosition();
+				RaycastHit mouseClickHit;
+				bool hitSuccess = false;
+				if (Physics.Raycast(ray, out mouseClickHit)) {
+					if (mouseClickHit.collider.tag == "Letter") {
+						Transform hitLetter = mouseClickHit.transform;
+						if (hitLetter == LastTouchedLetter) {
+							hitSuccess = true;
+							found = MoveWordAndCenterLetter(hitLetter);
+						}
+					}
+				}
+				if(!hitSuccess) {
+					Letter currentLetterProperties = LastTouchedLetter.GetComponent<Letter>();
+					if (currentLetterProperties.IsRandom()) {
+						currentLetterProperties.SetBaseColor((int)GameColors.RANDOM_WORD);
+					} else {
+						currentLetterProperties.SetBaseColor((int)GameColors.WORD);
+					}
+				}
+				LastTouchedLetter = null;
+			}
+			return found;
+		}
+
+		private static Ray TryRayCastAtMousePosition() {
+			Vector3 mouseClickPos = Input.mousePosition;
+			Ray ray = Camera.main.ScreenPointToRay(mouseClickPos);
+			return ray;
 		}
 
 		private bool IsLetterAtEdge(int centerIndex, int wordLength, int index) {
