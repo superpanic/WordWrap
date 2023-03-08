@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731713, g: 0.13414738, b: 0.121078536, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731689, g: 0.13414702, b: 0.1210784, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -438,8 +438,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1073475779}
-  - {fileID: 1192750036}
   - {fileID: 1108964312}
+  - {fileID: 1192750036}
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -901,6 +901,7 @@ GameObject:
   - component: {fileID: 1073475781}
   - component: {fileID: 1073475780}
   - component: {fileID: 1073475782}
+  - component: {fileID: 1073475783}
   m_Layer: 5
   m_Name: Score Text
   m_TagString: Untagged
@@ -957,8 +958,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278206975
+  m_fontColor: {r: 1, g: 0.2530334, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1038,6 +1039,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ScrollSpeed: 2
+--- !u!114 &1073475783
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1073475778}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4db8f70b24e359f47ab652df2d0b3cc3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  palette: {fileID: 856241139}
+  colorIndex: 5
+  intensity: 1
+  recursive: 0
 --- !u!1 &1108964311
 GameObject:
   m_ObjectHideFlags: 0
@@ -1050,6 +1067,7 @@ GameObject:
   - component: {fileID: 1108964315}
   - component: {fileID: 1108964314}
   - component: {fileID: 1108964313}
+  - component: {fileID: 1108964316}
   m_Layer: 5
   m_Name: Game Time
   m_TagString: Untagged
@@ -1070,7 +1088,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 335847732}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
@@ -1119,8 +1137,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4289769648
+  m_fontColor: {r: 0.6886792, g: 0.6886792, b: 0.6886792, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1187,6 +1205,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1108964311}
   m_CullTransparentMesh: 1
+--- !u!114 &1108964316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1108964311}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4db8f70b24e359f47ab652df2d0b3cc3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  palette: {fileID: 856241139}
+  colorIndex: 4
+  intensity: 1
+  recursive: 0
 --- !u!1 &1192750035
 GameObject:
   m_ObjectHideFlags: 0
@@ -1198,6 +1232,7 @@ GameObject:
   - component: {fileID: 1192750036}
   - component: {fileID: 1192750039}
   - component: {fileID: 1192750038}
+  - component: {fileID: 1192750040}
   m_Layer: 5
   m_Name: Word Counter
   m_TagString: Untagged
@@ -1218,7 +1253,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 335847732}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
@@ -1254,8 +1289,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4291920640
+  m_fontColor: {r: 0, g: 0.51550496, b: 0.81960785, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1322,6 +1357,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1192750035}
   m_CullTransparentMesh: 1
+--- !u!114 &1192750040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1192750035}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4db8f70b24e359f47ab652df2d0b3cc3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  palette: {fileID: 856241139}
+  colorIndex: 6
+  intensity: 1
+  recursive: 0
 --- !u!1 &1779439249
 GameObject:
   m_ObjectHideFlags: 0
